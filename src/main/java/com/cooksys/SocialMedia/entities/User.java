@@ -3,15 +3,13 @@ package com.cooksys.SocialMedia.entities;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
 @NoArgsConstructor
 @Data
+
 @Table(name = "user_table")
 public class User {
 
@@ -27,11 +25,15 @@ public class User {
 
     private Boolean deleted;
 
+    @Embedded
     private String firstName;
 
+    @Embedded
     private String lastName;
 
-    private String email;
-
+    @Embedded
     private String phoneNumber;
+
+    @Embedded
+    private String email;
 }
