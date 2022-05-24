@@ -1,4 +1,4 @@
-package com.cooksys.SocialMedia.embeddable;
+package com.cooksys.SocialMedia.Embeddable;
 
 
 import javax.persistence.Embeddable;

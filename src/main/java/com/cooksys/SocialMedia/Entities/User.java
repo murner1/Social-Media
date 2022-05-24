@@ -1,4 +1,4 @@
-package com.cooksys.SocialMedia.entities;
+package com.cooksys.SocialMedia.Entities;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
