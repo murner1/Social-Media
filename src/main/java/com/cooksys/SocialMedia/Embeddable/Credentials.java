@@ -3,7 +3,7 @@ import javax.persistence.Embeddable;
 
 @Embeddable
 public class Credentials {
-    private String userName;
+    private String username;
 
-    private String passWord;
+    private String password;
 }
