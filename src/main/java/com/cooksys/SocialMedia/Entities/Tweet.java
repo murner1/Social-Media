@@ -27,7 +27,7 @@ public class Tweet {
     private Long id;
 
     @ManyToOne
-    private Integer author;
+    private User author;
 
     private Timestamp posted = Timestamp.valueOf(LocalDateTime.now());
 
