@@ -1,11 +1,16 @@
 package com.cooksys.SocialMedia.Entities;
 
-
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,15 +24,18 @@ public class Hashtag {
 
     private String label;
 
-    private Timestamp firstUsed;
+    /*
+     * Initializing the timestamps in your entities means you don't have to in the
+     * services. The values will be overridden by JPA when pulling from the DB using
+     * the setter.
+     */
+    @CreationTimestamp
+    private Timestamp firstUsed = Timestamp.valueOf(LocalDateTime.now());
 
-    private Timestamp lastUsed;
+    @UpdateTimestamp
+    private Timestamp lastUsed = Timestamp.valueOf(LocalDateTime.now());
 
-    @ManyToMany
-    @JoinTable(
-            name = ("tweet_hashtags"),
-            joinColumns = @JoinColumn(name = "tweet_id")
-    )
-    private List<Tweet> tweets;
+    @ManyToMany(mappedBy = "hashtags")
+    private List<Tweet> tweets = new ArrayList<>();
 
 }

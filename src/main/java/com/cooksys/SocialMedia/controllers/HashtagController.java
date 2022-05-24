@@ -8,9 +8,9 @@ import com.cooksys.SocialMedia.services.HashtagService;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping
+@RequestMapping("tags")
 @AllArgsConstructor
 public class HashtagController {
-	private HashtagService hashtagService;
+  private HashtagService hashtagService;
 
 }

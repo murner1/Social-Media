@@ -4,13 +4,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+
+import com.cooksys.SocialMedia.Embeddable.Credentials;
+import com.cooksys.SocialMedia.Embeddable.Profile;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @NoArgsConstructor
 @Data
-
 @Table(name = "user_table")
 public class User {
 
@@ -19,53 +25,30 @@ public class User {
     private Long id;
 
     @Embedded
-    private String username;
+    private Credentials credentials;
+
+    @CreationTimestamp
+    private Timestamp joined = Timestamp.valueOf(LocalDateTime.now());
+
+    private Boolean deleted = false;
 
     @Embedded
-    private String password;
+    private Profile profile;
 
-    private Timestamp joined;
-
-    private Boolean deleted;
-
-    @Embedded
-    private String firstName;
-
-    @Embedded
-    private String lastName;
-
-    @Embedded
-    private String phone;
-
-    @Embedded
-    private String email;
+    @OneToMany(mappedBy = "author")
+    private List<Tweet> tweets;
 
     @ManyToMany
-    @JoinTable(
-            name = ("followers_following"),
-            joinColumns = @JoinColumn(name = "follower_id")
-    )
+    @JoinTable(name = ("followers_following"), joinColumns = @JoinColumn(name = "follower_id"))
     private List<User> followers;
 
     @ManyToMany(mappedBy = "followers")
     private List<User> following;
 
-    @ManyToMany
-    @JoinTable(
-            name = ("user_likes"),
-            joinColumns = @JoinColumn(name = "tweet_id")
-    )
+    @ManyToMany(mappedBy = "userLikes")
     private List<Tweet> likes;
 
-    @ManyToMany
-    @JoinTable(
-            name = ("user_mentions"),
-            joinColumns = @JoinColumn(name = "tweet_id")
-    )
+    @ManyToMany(mappedBy = "usersMentioned")
     private List<Tweet> mentions;
 
-    @OneToMany(mappedBy = "author")
-    @JoinColumn(name = "author")
-    private List<Tweet> tweets;
 }
-

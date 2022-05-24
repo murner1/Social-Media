@@ -1,20 +1,23 @@
 package com.cooksys.SocialMedia.Embeddable;
 
-
-import com.sun.istack.NotNull;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Embeddable
+@NoArgsConstructor
+@Data
 public class Profile {
-    @NotNull
-    private String email;
 
     private String firstName;
 
     private String lastName;
 
+    @Column(nullable = false)
+    private String email;
+
     private String phone;
+
 }
