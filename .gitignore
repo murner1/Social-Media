@@ -22,3 +22,7 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+
+
+### Sensitive Data ###
+src/main/resources/application.properties
