@@ -31,11 +31,11 @@ public class Tweet {
 	
 	private String content;
 	
+	@OneToMany
+	private List<Tweet> inReplyTo;
 	
-	private Integer	inReplyTo;
-	
-	
-	private Integer repostOf;
+	@OneToMany
+	private List<Tweet> repostOf;
 	
 	@ManyToMany
 	private List<Hashtag> hashtags;
