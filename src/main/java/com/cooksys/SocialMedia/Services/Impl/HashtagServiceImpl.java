@@ -1,9 +1,9 @@
-package com.cooksys.SocialMedia.services.impl;
+package com.cooksys.SocialMedia.Services.Impl;
 
 import org.springframework.stereotype.Service;
 
-import com.cooksys.SocialMedia.repositories.HashtagRepository;
-import com.cooksys.SocialMedia.services.HashtagService;
+import com.cooksys.SocialMedia.Repositories.HashtagRepository;
+import com.cooksys.SocialMedia.Services.HashtagService;
 
 import lombok.AllArgsConstructor;
 

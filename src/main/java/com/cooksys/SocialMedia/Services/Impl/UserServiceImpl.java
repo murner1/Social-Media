@@ -1,9 +1,9 @@
-package com.cooksys.SocialMedia.services.impl;
+package com.cooksys.SocialMedia.Services.Impl;
 
 import org.springframework.stereotype.Service;
 
-import com.cooksys.SocialMedia.repositories.UserRepository;
-import com.cooksys.SocialMedia.services.UserService;
+import com.cooksys.SocialMedia.Repositories.UserRepository;
+import com.cooksys.SocialMedia.Services.UserService;
 
 import lombok.AllArgsConstructor;
 
