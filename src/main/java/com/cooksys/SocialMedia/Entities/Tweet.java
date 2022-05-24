@@ -1,4 +1,4 @@
-package com.cooksys.SocialMedia.entities;
+package com.cooksys.SocialMedia.Entities;
 
 import java.security.Timestamp;
 

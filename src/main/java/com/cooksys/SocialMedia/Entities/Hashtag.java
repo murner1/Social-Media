@@ -1,4 +1,4 @@
-package com.cooksys.SocialMedia.entities;
+package com.cooksys.SocialMedia.Entities;
 
 
 import lombok.Data;
@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.sql.Time;
 import java.sql.Timestamp;
 
 @Entity
