@@ -34,7 +34,7 @@ public class User {
     private String lastName;
 
     @Embedded
-    private String phoneNumber;
+    private String phone;
 
     @Embedded
     private String email;
