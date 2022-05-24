@@ -14,7 +14,7 @@
 	<name>SocialMedia</name>
 	<description>Social Media Project for Group 2</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 
 	<dependencies>
