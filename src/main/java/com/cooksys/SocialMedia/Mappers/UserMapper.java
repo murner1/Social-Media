@@ -3,6 +3,7 @@ package com.cooksys.SocialMedia.Mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
 import com.cooksys.SocialMedia.Entities.User;
 
@@ -13,7 +14,7 @@ public interface UserMapper {
     UserResponseDto entityToDto(User entity);
     
     
-
+    User dtoToEntity(UserRequestDto userRequestDto);
 
 
 
