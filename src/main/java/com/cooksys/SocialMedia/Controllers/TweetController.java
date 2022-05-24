@@ -8,7 +8,7 @@ import com.cooksys.SocialMedia.Services.TweetService;
 import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping("tweets")
+@RequestMapping("/tweets")
 
 @AllArgsConstructor
 public class TweetController {
