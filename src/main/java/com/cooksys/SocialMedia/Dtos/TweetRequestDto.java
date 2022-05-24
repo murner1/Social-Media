@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 public class TweetRequestDto {
     private int id;
 
-    private
-
 
 
 }
