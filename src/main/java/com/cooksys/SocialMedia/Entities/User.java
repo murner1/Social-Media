@@ -17,8 +17,10 @@ public class User {
     @GeneratedValue
     private Long id;
 
+    @Embedded
     private String username;
 
+    @Embedded
     private String password;
 
     private Timestamp joined;
