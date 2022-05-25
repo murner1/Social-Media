@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.cooksys.SocialMedia.Dtos.ErrorDto;
 import com.cooksys.SocialMedia.Exceptions.BadRequestException;
+import com.cooksys.SocialMedia.Exceptions.NotAuthorizedException;
 import com.cooksys.SocialMedia.Exceptions.NotFoundException;
 import org.aspectj.weaver.ast.Not;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,11 @@ public class ControllerAdvice {
 		return new ErrorDto(notFoundException.getMessage());
 	}
 	//NotAuthorizedException
-	
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	@ExceptionHandler(NotAuthorizedException.class)
+	public ErrorDto handleNorAuthorizedException(HttpServletRequest request, NotAuthorizedException notAuthorizedException){
+		return new ErrorDto(notAuthorizedException.getMessage());
+	}
 	
 
 }
