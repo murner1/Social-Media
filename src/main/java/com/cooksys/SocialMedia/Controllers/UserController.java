@@ -19,7 +19,9 @@ public class UserController {
 
 	//GET users
 	@GetMapping
-	public List<UserResponseDto> getAllUsers(){return userService.getAllusers();}
+	public List<UserResponseDto> getAllUsers(){
+		return userService.getAllusers();
+	}
 
 
 }
