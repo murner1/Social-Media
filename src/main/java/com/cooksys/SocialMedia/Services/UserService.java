@@ -8,4 +8,6 @@ import java.util.List;
 public interface UserService {
 
     List<UserResponseDto> getAllusers();
+
+    UserResponseDto getUser(String username);
 }
