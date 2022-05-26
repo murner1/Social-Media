@@ -32,4 +32,5 @@ public class ValidateController {
     public boolean usernameAvailable(@PathVariable String username){
         return validateService.usernameAvailable(username);
     }
+
 }
