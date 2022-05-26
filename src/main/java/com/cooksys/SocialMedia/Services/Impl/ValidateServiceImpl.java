@@ -29,4 +29,11 @@ private final UserRepository userRepository;
         Optional<User> optionalUsername = userRepository.findByLabel(username);
         return optionalUsername.isPresent();
     }
+
+    @Override
+    public boolean usernameAvailable(String username){
+        Optional<User> optionalUsername = userRepository.findByLabel(username);
+        return !optionalUsername.isPresent();
+    }
+
 }
