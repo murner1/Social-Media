@@ -24,7 +24,6 @@ private final UserRepository userRepository;
 
     }
 
-
     @Override
     public boolean usernameExists(String username){
         Optional<User> optionalUsername = userRepository.findByLabel(username);
