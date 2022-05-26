@@ -14,21 +14,10 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ValidateServiceImpl implements ValidateService {
 
-private final HashtagRepository hashtagRepository;
+    private final HashtagRepository hashtagRepository;
 
-private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-private Optional<User> findUserByUsername(String username){
-    Optional<User> optionalUser = Optional.empty();
-    for(User user : userRepository.findAll()){
-        if(user.getCredentials().getUsername().equals(username)){
-            optionalUser = Optional.of(user);
-            return optionalUser;
-        }
-    }
-
-    return optionalUser;
-}
     @Override
     public boolean labelExists(String label) {
         Optional<Hashtag> optionalHashtag = hashtagRepository.findByLabel(label);
@@ -36,16 +25,15 @@ private Optional<User> findUserByUsername(String username){
 
     }
 
-
     @Override
-    public boolean usernameExists(String username){
-        Optional<User> optionalUsername = findUserByUsername(username);
+    public boolean usernameExists(String username) {
+        Optional<User> optionalUsername = userRepository.findByCredentialsUsername(username);
         return optionalUsername.isPresent();
     }
 
     @Override
-    public boolean usernameAvailable(String username){
-        Optional<User> optionalUsername = findUserByUsername(username);
+    public boolean usernameAvailable(String username) {
+        Optional<User> optionalUsername = userRepository.findByCredentialsUsername(username);
         return !optionalUsername.isPresent();
     }
 
