@@ -9,8 +9,8 @@ import com.cooksys.SocialMedia.Entities.User;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByLabel(String username);
+    Optional<User> findByCredentialsUsername(String username);
 
 }

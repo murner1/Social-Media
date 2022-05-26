@@ -7,6 +7,8 @@ import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
 import com.cooksys.SocialMedia.Entities.User;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", uses = { ProfileMapper.class, CredentialsMapper.class })
 public interface UserMapper {
 
@@ -17,5 +19,5 @@ public interface UserMapper {
     User dtoToEntity(UserRequestDto userRequestDto);
 
 
-
+    List<UserResponseDto> entititesToDto(List<User> all);
 }
