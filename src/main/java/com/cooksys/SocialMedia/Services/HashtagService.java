@@ -1,12 +1,13 @@
 package com.cooksys.SocialMedia.Services;
 
-import java.util.List;
-
 import com.cooksys.SocialMedia.Dtos.HashtagDto;
+
+import java.util.List;
 
 public interface HashtagService {
 
-	 List<HashtagDto> getAllTags();
+   List<HashtagDto> getTags(Long id);
 
+	 List<HashtagDto> getAllTags();
 
 }
