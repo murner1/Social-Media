@@ -57,7 +57,7 @@ public class TweetServiceImpl implements TweetService {
 			throw new NotFoundException("Cannot alter tweets because user cannot be found.");
 		}
 		if(!credentialsDto.getPassword().equals(user.get().getCredentials().getPassword())) {
-			throw new NotFoundException("Cannot alter tweets. Password isinvalid");
+			throw new NotFoundException("Cannot alter tweets. Password is invalid");
 		}
 		return user.get();
 	}
@@ -74,21 +74,7 @@ public class TweetServiceImpl implements TweetService {
 		}
 
 		// get the author of the tweet from the credentials
-		
 		User tweetAuthor = validateCredentials(tweetRequestDto.getCredentials());
-
-		
-		
-		
-//		Optional<User> user = userRepository.findByCredentialsUsername(tweetRequestDto.getCredentials().getUsername());
-//		if (user.isEmpty() || user.get().isDeleted()) {
-//			throw new NotFoundException("Cannot create tweet. Cannot find user");
-//		}
-//		if (!tweetRequestDto.getCredentials().getPassword().equals(user.get().getCredentials().getPassword())) {
-//			throw new NotFoundException("Cannot create tweet. Password isinvalid");
-//		}
-		
-		
 
 		Tweet tweetToSave = tweetMapper.requestDtoToEntity(tweetRequestDto);
 
@@ -212,9 +198,11 @@ public class TweetServiceImpl implements TweetService {
 
 	@Override
 	public TweetResponseDto deleteTweet(CredentialsDto credentialsDto, Long id) {
-
+		User user =validateCredentials(credentialsDto);
 		Tweet tweetToDelete = returnTweetFromId(id);
 		tweetToDelete.setDeleted(true);
-		return null;
+		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToDelete));
+		
+		
 	}
 }
