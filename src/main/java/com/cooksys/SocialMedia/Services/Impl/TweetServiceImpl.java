@@ -76,4 +76,21 @@ public class TweetServiceImpl implements TweetService{
 			throw new NotFoundException("This tweet does not exist");
 		}
 	}
+
+	@Override
+	public List<UserResponseDto> getLikes(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()){
+			List<User> likes = tweet.get().getUserLikes();
+			for(User like : likes){
+				if(like.getDeleted()){
+					likes.remove(like);
+				}
+			}
+			return userMapper.entititesToDto(likes);
+		}
+		else{
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
 }
