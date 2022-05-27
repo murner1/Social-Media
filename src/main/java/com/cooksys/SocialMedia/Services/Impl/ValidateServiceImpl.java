@@ -1,14 +1,16 @@
 package com.cooksys.SocialMedia.Services.Impl;
 
+import java.util.Optional;
+
 import com.cooksys.SocialMedia.Entities.Hashtag;
 import com.cooksys.SocialMedia.Entities.User;
 import com.cooksys.SocialMedia.Repositories.HashtagRepository;
 import com.cooksys.SocialMedia.Repositories.UserRepository;
 import com.cooksys.SocialMedia.Services.ValidateService;
-import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor

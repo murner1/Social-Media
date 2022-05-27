@@ -6,10 +6,19 @@ import com.cooksys.SocialMedia.Dtos.TweetRequestDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Entities.Tweet;
 
-@Mapper(componentModel = "spring")
+import java.util.List;
+import java.util.Optional;
+
+@Mapper(componentModel = "spring", uses = { UserMapper.class })
 public interface TweetMapper {
-	
-	Tweet requestDtoToEntity(TweetRequestDto tweetRequestDto);
-	
-	TweetResponseDto entityToResponseDto(Tweet tweet);
+
+
+
+    Tweet requestDtoToEntity(TweetRequestDto tweetRequestDto);
+
+    TweetResponseDto entityToResponseDto(Tweet tweet);
+
+    List<TweetResponseDto> entitiesToDto(List<Tweet> all);
+
+
 }

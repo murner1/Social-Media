@@ -1,4 +1,5 @@
 package com.cooksys.SocialMedia;
+
 import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
@@ -208,6 +209,7 @@ public class Seeder implements CommandLineRunner {
         Tweet tweet6 = new Tweet();
         tweet6.setAuthor(user3);
         tweet6.setDeleted(false);
+        tweet6.setUsersMentioned(Arrays.asList(user1, user2));
         // Set Content @PARAM String
         tweet6.setContent("This is some content 6");
         tweetRepository.saveAndFlush(tweet6);

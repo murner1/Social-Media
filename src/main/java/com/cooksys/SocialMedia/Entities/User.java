@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Table(name = "user_table")
-public class User {
+public class User implements Deletable {
 
     @Id
     @GeneratedValue
@@ -30,7 +30,7 @@ public class User {
     @CreationTimestamp
     private Timestamp joined = Timestamp.valueOf(LocalDateTime.now());
 
-    private Boolean deleted = false;
+    private boolean deleted = false;
 
     @Embedded
     private Profile profile;
