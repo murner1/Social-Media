@@ -115,4 +115,17 @@ public class UserServiceImpl implements UserService{
 			throw new NotFoundException("This User does not exist");
 		}
 	}
+
+	@Override
+	public List<UserResponseDto> getFollowers(String username) {
+		Optional<User> user = userRepository.findByCredentialsUsername(username);
+		if(user.isPresent()){
+			List<User> followers= user.get().getFollowers();
+			return userMapper.entititesToDto(followers);
+
+		}
+		else{
+			throw new NotFoundException("This User does not exist");
+		}
+	}
 }
