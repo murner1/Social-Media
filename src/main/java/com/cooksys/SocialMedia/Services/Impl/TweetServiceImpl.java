@@ -47,7 +47,7 @@ public class TweetServiceImpl implements TweetService{
 	public List<TweetResponseDto> getReposts(Long id) {
 		Optional<Tweet> tweet = tweetRepository.findById(id);
 		if(tweet.isPresent()){
-			List<Tweet> reposts = tweet.get().getReposts();
+				List<Tweet> reposts = tweet.get().getReposts();
 				for(Tweet repost : reposts){
 					if(repost.isDeleted()){
 						reposts.remove(repost);
@@ -55,6 +55,23 @@ public class TweetServiceImpl implements TweetService{
 				}
 				return tweetMapper.entitiesToDto(reposts);
 			}
+		else{
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
+
+	@Override
+	public List<TweetResponseDto> getReplies(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()){
+			List<Tweet> replies = tweet.get().getReplies();
+			for(Tweet reply : replies){
+				if(reply.isDeleted()){
+					replies.remove(reply);
+				}
+			}
+			return tweetMapper.entitiesToDto(replies);
+		}
 		else{
 			throw new NotFoundException("This tweet does not exist");
 		}
