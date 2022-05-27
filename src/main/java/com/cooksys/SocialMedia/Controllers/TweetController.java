@@ -44,5 +44,9 @@ public class TweetController {
 	public List<HashtagDto> getTags(@PathVariable Long id){
 		return hashtagService.getTags(id);
 	}
+	@GetMapping("{id}")
+	public TweetResponseDto getTweetById(@PathVariable Long id){
+		return tweetService.getTweetById(id);
+	}
 
 }
