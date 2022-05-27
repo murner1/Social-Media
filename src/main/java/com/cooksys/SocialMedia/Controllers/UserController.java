@@ -2,6 +2,7 @@ package com.cooksys.SocialMedia.Controllers;
 
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+import com.cooksys.SocialMedia.Entities.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,10 @@ public class UserController {
 	@GetMapping("@{username}/feed")
 	public List<TweetResponseDto> getFeed(@PathVariable String username){
 		return userService.getFeed(username);
+	}
+	@GetMapping("@{username}/following")
+	public List<UserResponseDto> getFollowing(@PathVariable String username){
+		return userService.getFollowing(username);
 	}
 
 
