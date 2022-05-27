@@ -1,7 +1,9 @@
 package com.cooksys.SocialMedia.Controllers;
 
+import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+import com.cooksys.SocialMedia.Entities.User;
 import org.springframework.web.bind.annotation.*;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Entities.User;
@@ -18,21 +20,22 @@ import java.util.List;
 public class UserController {
 	private UserService userService;
 
-	//GET users
+
 	@GetMapping
 	public List<UserResponseDto> getAllUsers(){
-		return userService.getAllusers();
+		return userService.getAllUsers();
 	}
-	//GET users/@{username}
+
 	@GetMapping("/@{username}")
 	public UserResponseDto getAllActiveUsers(@PathVariable String username){
 		return userService.getUser(username);
 	}
-	//POST users
+
 	@PostMapping
 	public UserResponseDto createUser(@RequestBody UserRequestDto userRequestDto){
 		return userService.createUser(userRequestDto);
 	}
+
 
 	@GetMapping("@{username}/feed")
 	public List<TweetResponseDto> getFeed(@PathVariable String username){
@@ -53,6 +56,30 @@ public class UserController {
 	@GetMapping("@{username}/followers")
 	public List<UserResponseDto> getFollowers(@PathVariable String username){
 		return userService.getFollowers(username);
+	}
+
+
+	@PatchMapping("/@{username}")
+	public UserResponseDto updateUser(@RequestBody UserRequestDto userRequestDto){
+		return userService.updateUser(userRequestDto);
+	}
+
+
+	@DeleteMapping("/@{username}")
+	public UserResponseDto deleteUser(@RequestBody CredentialsDto credentialsDto, @PathVariable String username){
+		return userService.deleteUser(credentialsDto, username);
+	}
+
+
+	@PostMapping("/@{username}/follow")
+	public UserResponseDto followUser(@RequestBody UserRequestDto userRequestDto){
+		return userService.followUser(userRequestDto);
+	}
+
+
+	@PostMapping("/@{username}/unfollow")
+	public UserResponseDto unfollowUser(@RequestBody UserRequestDto userRequestDto){
+		return userService.unfollowUser(userRequestDto);
 	}
 
 

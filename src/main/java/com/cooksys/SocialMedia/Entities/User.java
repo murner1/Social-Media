@@ -51,4 +51,5 @@ public class User implements Deletable {
     @ManyToMany(mappedBy = "usersMentioned")
     private List<Tweet> mentions;
 
+
 }

@@ -1,6 +1,12 @@
 package com.cooksys.SocialMedia.Repositories;
 
+
 import java.util.Optional;
+import com.cooksys.SocialMedia.Entities.Hashtag;
+import com.cooksys.SocialMedia.Entities.Tweet;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 
 import com.cooksys.SocialMedia.Entities.User;
 
@@ -21,4 +27,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAllByDeletedFalse();
 
 
+    void delete(Tweet tweets);
 }
