@@ -27,17 +27,17 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class TweetServiceImpl implements TweetService {
-    private TweetRepository tweetRepository;
+	private TweetRepository tweetRepository;
 
-    private TweetMapper tweetMapper;
+	private TweetMapper tweetMapper;
 
-    private UserMapper userMapper;
-    
-    private UserRepository userRepository;
-    
-    private HashtagRepository hashtagRepository;
+	private UserMapper userMapper;
 
-    @Override
+	private UserRepository userRepository;
+
+	private HashtagRepository hashtagRepository;
+
+	@Override
     public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
         // need to check that the credentials match an active user, if not send an error
         // For now we don't need to check that it does not have inReplyTo or repostOf
@@ -54,13 +54,19 @@ public class TweetServiceImpl implements TweetService {
         if (user.isEmpty() || user.get().isDeleted()) {
         	throw new NotFoundException("Cannot create tweet. Cannot find user");
         }
+        if(!tweetRequestDto.getCredentials().getPassword().equals(user.get().getCredentials().getPassword())) {
+        	throw new NotFoundException("Cannot create tweet. Password isinvalid");
+        }
+        
         Tweet tweetToSave = tweetMapper.requestDtoToEntity(tweetRequestDto);
 
         tweetToSave.setAuthor(user.get());
         
         // need to scan through the tweeet for @{username} and #{hastag} and add these
+        // this could give issues if someone dosn't put a space before their hashtag or mention
         String[] contentAsArray = tweetToSave.getContent().split(" ", 0);
-           
+         
+        // could be nice to make these thier own methods 
         for (int i = 0; i <contentAsArray.length; i ++) {
         	if(contentAsArray[i].contains("#")) {
         		
@@ -70,88 +76,101 @@ public class TweetServiceImpl implements TweetService {
         		tweetToSave.getHashtags().add(hashtag);
         		hashtagRepository.saveAndFlush(hashtag);
         	}
-//        	if(contentAsArray[i].contains("@")) {
-//        		
-//        	}
-        }
+        	
+        	
+        	if(contentAsArray[i].contains("@")) {
+        		Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
+        		if (userMentioned.isPresent()) {
+        			tweetToSave.getUsersMentioned().add(userMentioned.get());
+        			userMentioned.get().getMentions().add(0, tweetToSave);
+        		}
+        	}
+        	
+        	List<User> usersMentioned = tweetToSave.getUsersMentioned();
+        	for (int j = 0; j < usersMentioned.size(); j++) {
+        		usersMentioned.get(j).getMentions().add(0, tweetToSave);
+        		userRepository.saveAndFlush(usersMentioned.get(j));
+        	}
+        			
+        			}
         
-        // to the hashtags and usersMentioned lists
+        
 
         // Save the tweet and and return it
         return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToSave));
     }
 
-    @Override
-    public List<UserResponseDto> getMentions(Long id) {
-        Optional<Tweet> tweet = tweetRepository.findById(id);
-        if (tweet.isPresent()) {
-            List<User> mentioned = tweet.get().getUsersMentioned();
-            for (User user : mentioned) {
-                if (user.isDeleted()) {
-                    mentioned.remove(user);
-                }
-            }
-            return userMapper.entititesToDto(mentioned);
-        } else {
-            throw new NotFoundException("This tweet does not exist");
-        }
-    }
+	@Override
+	public List<UserResponseDto> getMentions(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()) {
+			List<User> mentioned = tweet.get().getUsersMentioned();
+			for (User user : mentioned) {
+				if (user.isDeleted()) {
+					mentioned.remove(user);
+				}
+			}
+			return userMapper.entititesToDto(mentioned);
+		} else {
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
 
-    @Override
-    public List<TweetResponseDto> getReposts(Long id) {
-        Optional<Tweet> tweet = tweetRepository.findById(id);
-        if (tweet.isPresent()) {
-            List<Tweet> reposts = tweet.get().getReposts();
-            for (Tweet repost : reposts) {
-                if (repost.isDeleted()) {
-                    reposts.remove(repost);
-                }
-            }
-            return tweetMapper.entitiesToDto(reposts);
-        } else {
-            throw new NotFoundException("This tweet does not exist");
-        }
-    }
+	@Override
+	public List<TweetResponseDto> getReposts(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()) {
+			List<Tweet> reposts = tweet.get().getReposts();
+			for (Tweet repost : reposts) {
+				if (repost.isDeleted()) {
+					reposts.remove(repost);
+				}
+			}
+			return tweetMapper.entitiesToDto(reposts);
+		} else {
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
 
-    @Override
-    public List<TweetResponseDto> getReplies(Long id) {
-        Optional<Tweet> tweet = tweetRepository.findById(id);
-        if (tweet.isPresent()) {
-            List<Tweet> replies = tweet.get().getReplies();
-            for (Tweet reply : replies) {
-                if (reply.isDeleted()) {
-                    replies.remove(reply);
-                }
-            }
-            return tweetMapper.entitiesToDto(replies);
-        } else {
-            throw new NotFoundException("This tweet does not exist");
-        }
-    }
+	@Override
+	public List<TweetResponseDto> getReplies(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()) {
+			List<Tweet> replies = tweet.get().getReplies();
+			for (Tweet reply : replies) {
+				if (reply.isDeleted()) {
+					replies.remove(reply);
+				}
+			}
+			return tweetMapper.entitiesToDto(replies);
+		} else {
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
 
-    @Override
-    public List<UserResponseDto> getLikes(Long id) {
-        Optional<Tweet> tweet = tweetRepository.findById(id);
-        if (tweet.isPresent()) {
-            List<User> likes = tweet.get().getUserLikes();
-            for (User like : likes) {
-                if (like.isDeleted()) {
-                    likes.remove(like);
-                }
-            }
-            return userMapper.entititesToDto(likes);
-        } else {
-            throw new NotFoundException("This tweet does not exist");
-        }
-    }
+	@Override
+	public List<UserResponseDto> getLikes(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()) {
+			List<User> likes = tweet.get().getUserLikes();
+			for (User like : likes) {
+				if (like.isDeleted()) {
+					likes.remove(like);
+				}
+			}
+			return userMapper.entititesToDto(likes);
+		} else {
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
 
-    @Override
-    public TweetResponseDto getTweetById(Long id) {
-        Optional<Tweet> tweet = tweetRepository.findById(id);
-        if (tweet.isPresent()) {
-            return tweetMapper.entityToResponseDto(tweet.get());
-        } else {
-            throw new NotFoundException("This tweet does not exist");
-        }
-    }
+	@Override
+	public TweetResponseDto getTweetById(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()) {
+			return tweetMapper.entityToResponseDto(tweet.get());
+		} else {
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
 }
