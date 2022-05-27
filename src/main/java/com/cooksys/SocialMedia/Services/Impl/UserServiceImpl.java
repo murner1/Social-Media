@@ -1,6 +1,5 @@
 package com.cooksys.SocialMedia.Services.Impl;
 
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,7 +9,6 @@ import java.util.Optional;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
-import com.cooksys.SocialMedia.Embeddable.Credentials;
 import com.cooksys.SocialMedia.Entities.Deletable;
 import com.cooksys.SocialMedia.Entities.Tweet;
 import com.cooksys.SocialMedia.Entities.User;
@@ -23,8 +21,6 @@ import com.cooksys.SocialMedia.Services.UserService;
 
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -53,7 +49,7 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
-    private User getUser(String username) {
+    private User findUser(String username) {
         Optional<User> user = userRepository.findByCredentialsUsername(username);
         if (user.isPresent()) {
             return user.get();
@@ -61,51 +57,48 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("this User does not exist");
         }
     }
-  
-  @Override
-	public List<UserResponseDto> getAllusers() {
-		return userMapper.entititesToDto(userRepository.findAllByDeleted(false));
-	}
-
-	@Override
-	public UserResponseDto getUser(String username) {
-		User user = getUser(username);
-		if (user.isDeleted()) {
-			throw new NotFoundException("this User does not exist");
-		}
-		return userMapper.entityToDto(user);
-	}
-
-	@Override
-	public UserResponseDto createUser(UserRequestDto userRequestDto) {
-		User userToCreate = userMapper.requestDtoToEntity(userRequestDto);
-		Optional<User> optionalUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
-		if (userToCreate.getCredentials().getPassword() == null || userToCreate.getCredentials().getUsername() == null || userToCreate.getProfile().getEmail() == null) {
-			throw new NotFoundException("Password or username not valid");
-		}
-		if (optionalUser.isPresent()) {
-			if (!optionalUser.get().getDeleted()) {
-				throw new BadRequestException("User already exists");
-			} else {
-				optionalUser.get().setDeleted(false);  //Taking the optional user and setting delete to false
-				userRepository.saveAndFlush(optionalUser.get());
-				return userMapper.entityToDto(optionalUser.get()); //Need mapper to go from user entitiy to Dto.
-			}
-
-		}
-		User saveThisUser = userRepository.saveAndFlush(userToCreate);
-		return userMapper.entityToDto(saveThisUser);
-
-	}
 
     @Override
     public List<UserResponseDto> getAllusers() {
-        return userMapper.entititesToDto(userRepository.findAll());
+        return userMapper.entititesToDto(userRepository.findAllByDeleted(false));
+    }
+
+    @Override
+    public UserResponseDto getUser(String username) {
+        User user = findUser(username);
+        if (user.isDeleted()) {
+            throw new NotFoundException("this User does not exist");
+        }
+        return userMapper.entityToDto(user);
+    }
+
+    @Override
+    public UserResponseDto createUser(UserRequestDto userRequestDto) {
+        User userToCreate = userMapper.requestDtoToEntity(userRequestDto);
+        Optional<User> optionalUser = userRepository
+                .findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+        if (userToCreate.getCredentials().getPassword() == null || userToCreate.getCredentials().getUsername() == null
+                || userToCreate.getProfile().getEmail() == null) {
+            throw new NotFoundException("Password or username not valid");
+        }
+        if (optionalUser.isPresent()) {
+            if (!optionalUser.get().isDeleted()) {
+                throw new BadRequestException("User already exists");
+            } else {
+                optionalUser.get().setDeleted(false); // Taking the optional user and setting delete to false
+                userRepository.saveAndFlush(optionalUser.get());
+                return userMapper.entityToDto(optionalUser.get()); // Need mapper to go from user entitiy to Dto.
+            }
+
+        }
+        User saveThisUser = userRepository.saveAndFlush(userToCreate);
+        return userMapper.entityToDto(saveThisUser);
+
     }
 
     @Override
     public List<TweetResponseDto> getFeed(String username) {
-        User user = getUser(username);
+        User user = findUser(username);
         List<User> following = filterDeleted(user.getFollowing());
         List<Tweet> tweets = filterDeleted(user.getTweets());
         for (User followed : following) {
@@ -116,21 +109,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDto> getFollowing(String username) {
-        return userMapper.entititesToDto(filterDeleted(getUser(username).getFollowing()));
+        return userMapper.entititesToDto(filterDeleted(findUser(username).getFollowing()));
     }
 
     @Override
     public List<TweetResponseDto> getAuthoredTweets(String username) {
-        return tweetMapper.entitiesToDto(reverseChronological(filterDeleted(getUser(username).getTweets())));
+        return tweetMapper.entitiesToDto(reverseChronological(filterDeleted(findUser(username).getTweets())));
     }
 
     @Override
     public List<TweetResponseDto> getMentions(String username) {
-        return tweetMapper.entitiesToDto(reverseChronological(filterDeleted(getUser(username).getMentions())));
+        return tweetMapper.entitiesToDto(reverseChronological(filterDeleted(findUser(username).getMentions())));
     }
 
     @Override
     public List<UserResponseDto> getFollowers(String username) {
-        return userMapper.entititesToDto(filterDeleted(getUser(username).getFollowers()));
+        return userMapper.entititesToDto(filterDeleted(findUser(username).getFollowers()));
     }
+
 }
