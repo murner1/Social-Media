@@ -1,5 +1,6 @@
 package com.cooksys.SocialMedia.Services;
 
+import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.TweetRequestDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
@@ -23,7 +24,7 @@ public interface TweetService {
 
 	List<TweetResponseDto> getAllTweets();
 
-	TweetResponseDto deleteTweet(Long id);
+	TweetResponseDto deleteTweet(CredentialsDto credentialsDto, Long id);
 	
 	
 

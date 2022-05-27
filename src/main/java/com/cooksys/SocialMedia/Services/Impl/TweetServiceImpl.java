@@ -1,12 +1,15 @@
 package com.cooksys.SocialMedia.Services.Impl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
+import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.TweetRequestDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+import com.cooksys.SocialMedia.Embeddable.Credentials;
 import com.cooksys.SocialMedia.Entities.Hashtag;
 import com.cooksys.SocialMedia.Entities.Tweet;
 import com.cooksys.SocialMedia.Entities.User;
@@ -18,9 +21,6 @@ import com.cooksys.SocialMedia.Repositories.HashtagRepository;
 import com.cooksys.SocialMedia.Repositories.TweetRepository;
 import com.cooksys.SocialMedia.Repositories.UserRepository;
 import com.cooksys.SocialMedia.Services.TweetService;
-import com.cooksys.SocialMedia.Services.UserService;
-
-import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
 
@@ -47,6 +47,21 @@ public class TweetServiceImpl implements TweetService {
 
 	}
 
+	private User validateCredentials(CredentialsDto credentialsDto) {
+		if(credentialsDto.getPassword()== null || credentialsDto.getPassword()==null) {
+			throw new BadRequestException("Username and Password must be provided");
+		}
+		
+		Optional<User> user =userRepository.findByCredentialsUsername(credentialsDto.getUsername());
+		if(user.isEmpty()|| user.get().isDeleted()) {
+			throw new NotFoundException("Cannot alter tweets because user cannot be found.");
+		}
+		if(!credentialsDto.getPassword().equals(user.get().getCredentials().getPassword())) {
+			throw new NotFoundException("Cannot alter tweets. Password isinvalid");
+		}
+		return user.get();
+	}
+
 	@Override
 	public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
 		// need to check that the credentials match an active user, if not send an error
@@ -59,17 +74,25 @@ public class TweetServiceImpl implements TweetService {
 		}
 
 		// get the author of the tweet from the credentials
-		Optional<User> user = userRepository.findByCredentialsUsername(tweetRequestDto.getCredentials().getUsername());
-		if (user.isEmpty() || user.get().isDeleted()) {
-			throw new NotFoundException("Cannot create tweet. Cannot find user");
-		}
-		if (!tweetRequestDto.getCredentials().getPassword().equals(user.get().getCredentials().getPassword())) {
-			throw new NotFoundException("Cannot create tweet. Password isinvalid");
-		}
+		
+		User tweetAuthor = validateCredentials(tweetRequestDto.getCredentials());
+
+		
+		
+		
+//		Optional<User> user = userRepository.findByCredentialsUsername(tweetRequestDto.getCredentials().getUsername());
+//		if (user.isEmpty() || user.get().isDeleted()) {
+//			throw new NotFoundException("Cannot create tweet. Cannot find user");
+//		}
+//		if (!tweetRequestDto.getCredentials().getPassword().equals(user.get().getCredentials().getPassword())) {
+//			throw new NotFoundException("Cannot create tweet. Password isinvalid");
+//		}
+		
+		
 
 		Tweet tweetToSave = tweetMapper.requestDtoToEntity(tweetRequestDto);
 
-		tweetToSave.setAuthor(user.get());
+		tweetToSave.setAuthor(tweetAuthor);
 
 		// need to scan through the tweeet for @{username} and #{hastag} and add these
 		// this could give issues if someone dosn't put a space before their hashtag or
@@ -188,7 +211,8 @@ public class TweetServiceImpl implements TweetService {
 	}
 
 	@Override
-	public TweetResponseDto deleteTweet(Long id) {
+	public TweetResponseDto deleteTweet(CredentialsDto credentialsDto, Long id) {
+
 		Tweet tweetToDelete = returnTweetFromId(id);
 		tweetToDelete.setDeleted(true);
 		return null;
