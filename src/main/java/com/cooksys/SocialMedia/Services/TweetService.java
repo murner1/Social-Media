@@ -21,4 +21,6 @@ public interface TweetService {
 
     TweetResponseDto getTweetById(Long id);
 
+	List<TweetResponseDto> getAllTweets();
+
 }

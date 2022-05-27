@@ -38,67 +38,64 @@ public class TweetServiceImpl implements TweetService {
 	private HashtagRepository hashtagRepository;
 
 	@Override
-    public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
-        // need to check that the credentials match an active user, if not send an error
-        // For now we don't need to check that it does not have inReplyTo or repostOf
-        // because tweetRequestDto only has content and credentials
+	public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
+		// need to check that the credentials match an active user, if not send an error
+		// For now we don't need to check that it does not have inReplyTo or repostOf
+		// because tweetRequestDto only has content and credentials
 
-        // Check that the tweet has content
-        if (tweetRequestDto.getContent() == null) {
-            throw new BadRequestException("Content is required for posting a tweet");
-        }
+		// Check that the tweet has content
+		if (tweetRequestDto.getContent() == null) {
+			throw new BadRequestException("Content is required for posting a tweet");
+		}
 
-        
-     // get the author of the tweet from the credentials
-        Optional<User> user = userRepository.findByCredentialsUsername(tweetRequestDto.getCredentials().getUsername());
-        if (user.isEmpty() || user.get().isDeleted()) {
-        	throw new NotFoundException("Cannot create tweet. Cannot find user");
-        }
-        if(!tweetRequestDto.getCredentials().getPassword().equals(user.get().getCredentials().getPassword())) {
-        	throw new NotFoundException("Cannot create tweet. Password isinvalid");
-        }
-        
-        Tweet tweetToSave = tweetMapper.requestDtoToEntity(tweetRequestDto);
+		// get the author of the tweet from the credentials
+		Optional<User> user = userRepository.findByCredentialsUsername(tweetRequestDto.getCredentials().getUsername());
+		if (user.isEmpty() || user.get().isDeleted()) {
+			throw new NotFoundException("Cannot create tweet. Cannot find user");
+		}
+		if (!tweetRequestDto.getCredentials().getPassword().equals(user.get().getCredentials().getPassword())) {
+			throw new NotFoundException("Cannot create tweet. Password isinvalid");
+		}
 
-        tweetToSave.setAuthor(user.get());
-        
-        // need to scan through the tweeet for @{username} and #{hastag} and add these
-        // this could give issues if someone dosn't put a space before their hashtag or mention
-        String[] contentAsArray = tweetToSave.getContent().split(" ", 0);
-         
-        // could be nice to make these thier own methods 
-        for (int i = 0; i <contentAsArray.length; i ++) {
-        	if(contentAsArray[i].contains("#")) {
-        		
-        		Hashtag hashtag = new Hashtag();
-        		hashtag.setLabel(contentAsArray[i]);
-        		hashtag.getTweets().add(tweetToSave);
-        		tweetToSave.getHashtags().add(hashtag);
-        		hashtagRepository.saveAndFlush(hashtag);
-        	}
-        	
-        	
-        	if(contentAsArray[i].contains("@")) {
-        		Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
-        		if (userMentioned.isPresent()) {
-        			tweetToSave.getUsersMentioned().add(userMentioned.get());
-        			userMentioned.get().getMentions().add(0, tweetToSave);
-        		}
-        	}
-        	
-        	List<User> usersMentioned = tweetToSave.getUsersMentioned();
-        	for (int j = 0; j < usersMentioned.size(); j++) {
-        		usersMentioned.get(j).getMentions().add(0, tweetToSave);
-        		userRepository.saveAndFlush(usersMentioned.get(j));
-        	}
-        			
-        			}
-        
-        
+		Tweet tweetToSave = tweetMapper.requestDtoToEntity(tweetRequestDto);
 
-        // Save the tweet and and return it
-        return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToSave));
-    }
+		tweetToSave.setAuthor(user.get());
+
+		// need to scan through the tweeet for @{username} and #{hastag} and add these
+		// this could give issues if someone dosn't put a space before their hashtag or
+		// mention
+		String[] contentAsArray = tweetToSave.getContent().split(" ", 0);
+
+		// could be nice to make these thier own methods
+		for (int i = 0; i < contentAsArray.length; i++) {
+			if (contentAsArray[i].contains("#")) {
+
+				Hashtag hashtag = new Hashtag();
+				hashtag.setLabel(contentAsArray[i]);
+				hashtag.getTweets().add(tweetToSave);
+				tweetToSave.getHashtags().add(hashtag);
+				hashtagRepository.saveAndFlush(hashtag);
+			}
+
+			if (contentAsArray[i].contains("@")) {
+				Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
+				if (userMentioned.isPresent()) {
+					tweetToSave.getUsersMentioned().add(userMentioned.get());
+					userMentioned.get().getMentions().add(0, tweetToSave);
+				}
+			}
+
+			List<User> usersMentioned = tweetToSave.getUsersMentioned();
+			for (int j = 0; j < usersMentioned.size(); j++) {
+				usersMentioned.get(j).getMentions().add(0, tweetToSave);
+				userRepository.saveAndFlush(usersMentioned.get(j));
+			}
+
+		}
+
+		// Save the tweet and and return it
+		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToSave));
+	}
 
 	@Override
 	public List<UserResponseDto> getMentions(Long id) {
@@ -172,5 +169,11 @@ public class TweetServiceImpl implements TweetService {
 		} else {
 			throw new NotFoundException("This tweet does not exist");
 		}
+	}
+
+	@Override
+	public List<TweetResponseDto> getAllTweets() {
+		return tweetMapper.entitiesToDto(tweetRepository.findAllByDeleted(false));
+		
 	}
 }

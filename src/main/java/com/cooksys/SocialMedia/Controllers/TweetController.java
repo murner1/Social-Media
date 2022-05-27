@@ -1,6 +1,5 @@
 package com.cooksys.SocialMedia.Controllers;
 
-
 import com.cooksys.SocialMedia.Dtos.HashtagDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
@@ -31,8 +30,8 @@ public class TweetController {
 	private TweetService tweetService;
 
 	private HashtagService hashtagService;
-  
-  // Post Tweets
+
+	// Post Tweets
 	// Creates a new simple tweet, with the author set to the user identified by the
 	// credentials in the request body. If the given credentials do not match an
 	// active user in the database, an error should be sent in lieu of a response.
@@ -42,36 +41,41 @@ public class TweetController {
 	public TweetResponseDto postTweet(@RequestBody TweetRequestDto tweetRequestDto) {
 		return tweetService.postTweet(tweetRequestDto);
 	}
-  
-  @GetMapping("{id}")
-	public TweetResponseDto getTweetById(@PathVariable Long id){
+
+	@GetMapping
+	public List<TweetResponseDto> getAllTweets() {
+		return tweetService.getAllTweets();
+
+	}
+
+	@GetMapping("{id}")
+	public TweetResponseDto getTweetById(@PathVariable Long id) {
 		return tweetService.getTweetById(id);
-  }
+	}
 
 	@GetMapping("{id}/mentions")
-	public List<UserResponseDto> getMentions(@PathVariable Long id){
+	public List<UserResponseDto> getMentions(@PathVariable Long id) {
 		return tweetService.getMentions(id);
 	}
-  
+
 	@GetMapping("{id}/reposts")
-	public List<TweetResponseDto> getReposts(@PathVariable Long id){
+	public List<TweetResponseDto> getReposts(@PathVariable Long id) {
 		return tweetService.getReposts(id);
 	}
-  
+
 	@GetMapping("{id}/replies")
-	public List<TweetResponseDto> getReplies(@PathVariable Long id){
+	public List<TweetResponseDto> getReplies(@PathVariable Long id) {
 		return tweetService.getReplies(id);
 	}
-  
+
 	@GetMapping("{id}/likes")
-	public List<UserResponseDto> getLikes(@PathVariable Long id){
+	public List<UserResponseDto> getLikes(@PathVariable Long id) {
 		return tweetService.getLikes(id);
 	}
-  
+
 	@GetMapping("{id}/tags")
-	public List<HashtagDto> getTags(@PathVariable Long id){
+	public List<HashtagDto> getTags(@PathVariable Long id) {
 		return hashtagService.getTags(id);
 	}
-  
 
 }
