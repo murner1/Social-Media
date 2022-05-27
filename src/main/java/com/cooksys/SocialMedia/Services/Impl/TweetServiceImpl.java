@@ -1,5 +1,6 @@
 package com.cooksys.SocialMedia.Services.Impl;
 
+import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
 import com.cooksys.SocialMedia.Entities.Tweet;
 import com.cooksys.SocialMedia.Entities.User;
@@ -37,6 +38,23 @@ public class TweetServiceImpl implements TweetService{
 			}
 			return userMapper.entititesToDto(mentioned);
 		}
+		else{
+			throw new NotFoundException("This tweet does not exist");
+		}
+	}
+
+	@Override
+	public List<TweetResponseDto> getReposts(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if(tweet.isPresent()){
+			List<Tweet> reposts = tweet.get().getReposts();
+				for(Tweet repost : reposts){
+					if(repost.isDeleted()){
+						reposts.remove(repost);
+					}
+				}
+				return tweetMapper.entitiesToDto(reposts);
+			}
 		else{
 			throw new NotFoundException("This tweet does not exist");
 		}
