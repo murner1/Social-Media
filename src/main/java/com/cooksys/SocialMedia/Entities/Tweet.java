@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @Data
-public class Tweet {
+public class Tweet implements Deletable {
 
     @Id
     @GeneratedValue
