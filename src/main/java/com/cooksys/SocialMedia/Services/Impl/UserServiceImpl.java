@@ -1,5 +1,6 @@
 package com.cooksys.SocialMedia.Services.Impl;
 
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,10 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
+import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+import com.cooksys.SocialMedia.Embeddable.Credentials;
 import com.cooksys.SocialMedia.Entities.Deletable;
 import com.cooksys.SocialMedia.Entities.Tweet;
 import com.cooksys.SocialMedia.Entities.User;
+import com.cooksys.SocialMedia.Exceptions.BadRequestException;
 import com.cooksys.SocialMedia.Exceptions.NotFoundException;
 import com.cooksys.SocialMedia.Mappers.TweetMapper;
 import com.cooksys.SocialMedia.Mappers.UserMapper;
@@ -19,6 +23,8 @@ import com.cooksys.SocialMedia.Services.UserService;
 
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -55,6 +61,42 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("this User does not exist");
         }
     }
+  
+  @Override
+	public List<UserResponseDto> getAllusers() {
+		return userMapper.entititesToDto(userRepository.findAllByDeleted(false));
+	}
+
+	@Override
+	public UserResponseDto getUser(String username) {
+		User user = getUser(username);
+		if (user.isDeleted()) {
+			throw new NotFoundException("this User does not exist");
+		}
+		return userMapper.entityToDto(user);
+	}
+
+	@Override
+	public UserResponseDto createUser(UserRequestDto userRequestDto) {
+		User userToCreate = userMapper.requestDtoToEntity(userRequestDto);
+		Optional<User> optionalUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+		if (userToCreate.getCredentials().getPassword() == null || userToCreate.getCredentials().getUsername() == null || userToCreate.getProfile().getEmail() == null) {
+			throw new NotFoundException("Password or username not valid");
+		}
+		if (optionalUser.isPresent()) {
+			if (!optionalUser.get().getDeleted()) {
+				throw new BadRequestException("User already exists");
+			} else {
+				optionalUser.get().setDeleted(false);  //Taking the optional user and setting delete to false
+				userRepository.saveAndFlush(optionalUser.get());
+				return userMapper.entityToDto(optionalUser.get()); //Need mapper to go from user entitiy to Dto.
+			}
+
+		}
+		User saveThisUser = userRepository.saveAndFlush(userToCreate);
+		return userMapper.entityToDto(saveThisUser);
+
+	}
 
     @Override
     public List<UserResponseDto> getAllusers() {

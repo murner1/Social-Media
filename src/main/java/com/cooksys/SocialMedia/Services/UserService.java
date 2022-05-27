@@ -1,6 +1,8 @@
 package com.cooksys.SocialMedia.Services;
 
 
+
+import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
 import com.cooksys.SocialMedia.Entities.User;
@@ -11,6 +13,10 @@ public interface UserService {
 
     List<UserResponseDto> getAllusers();
 
+    UserResponseDto getUser(String username);
+
+    UserResponseDto createUser(UserRequestDto userRequestDto);
+  
     List<TweetResponseDto> getFeed(String username);
 
     List<UserResponseDto> getFollowing(String username);
@@ -20,4 +26,5 @@ public interface UserService {
     List<TweetResponseDto> getMentions(String username);
 
     List<UserResponseDto> getFollowers(String username);
+
 }
