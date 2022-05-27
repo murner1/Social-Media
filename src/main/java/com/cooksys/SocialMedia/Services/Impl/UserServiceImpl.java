@@ -15,10 +15,7 @@ import com.cooksys.SocialMedia.Services.UserService;
 
 import lombok.AllArgsConstructor;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -28,6 +25,8 @@ public class UserServiceImpl implements UserService{
 	private UserMapper userMapper;
 
 	private TweetMapper tweetMapper;
+
+	private TweetRepository tweetRepository;
 	@Override
 	public List<UserResponseDto> getAllusers() {
 		return userMapper.entititesToDto(userRepository.findAll());
@@ -92,6 +91,27 @@ public class UserServiceImpl implements UserService{
 			return tweetMapper.entitiesToDto(authored);
 		}
 		else{
+			throw new NotFoundException("This User does not exist");
+		}
+	}
+
+	@Override
+	public List<TweetResponseDto> getMentions(String username) {
+		Optional<User> user = userRepository.findByCredentialsUsername(username);
+		List<Tweet> mentionedTweets = new ArrayList<>();
+		if (user.isPresent()) {
+			List<Tweet> all = tweetRepository.findAllByDeletedFalse();
+			for (Tweet tweet : all) {
+				List<User> mentionedUsers = tweet.getUsersMentioned();
+				for (User users : mentionedUsers) {
+					if (username.equals(users.getCredentials().getUsername())) {
+						mentionedTweets.add(tweet);
+					}
+				}
+			}
+			return tweetMapper.entitiesToDto(mentionedTweets);
+		}
+		else {
 			throw new NotFoundException("This User does not exist");
 		}
 	}

@@ -36,6 +36,10 @@ public class UserController {
 	public List<TweetResponseDto> getAuthoredTweets(@PathVariable String username){
 		return userService.getAuthoredTweets(username);
 	}
+	@GetMapping("@{username}/mentions")
+	public List<TweetResponseDto> getMentions(@PathVariable String username){
+		return userService.getMentions(username);
+	}
 
 
 }
