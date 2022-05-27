@@ -1,10 +1,8 @@
 package com.cooksys.SocialMedia.Controllers;
 
+import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.cooksys.SocialMedia.Services.UserService;
 
@@ -27,6 +25,11 @@ public class UserController {
 	@GetMapping("/@{username}")
 	public UserResponseDto getAllActiveUsers(@PathVariable String username){
 		return userService.getUser(username);
+	}
+	//POST users
+	@PostMapping
+	public UserResponseDto createUser(@RequestBody UserRequestDto userRequestDto){
+		return userService.createUser(userRequestDto);
 	}
 
 
