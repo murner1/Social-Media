@@ -63,9 +63,16 @@ public class UserController {
 	public UserResponseDto updateUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username){
 		return userService.updateUser(userRequestDto, username);
 	}
+	@PostMapping("@{username}/follow")
+	public UserResponseDto followUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username){
+		return userService.followUser(userRequestDto, username);
+	}
 
+	@PostMapping("@{username}/unfollow")
+	public UserResponseDto unfollowUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username) {
+		return userService.unfollowUser(userRequestDto, username);
 
-
+	}
 
 
 }

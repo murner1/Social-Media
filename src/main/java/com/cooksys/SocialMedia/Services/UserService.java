@@ -32,4 +32,8 @@ public interface UserService {
 
 
     UserResponseDto updateUser(UserRequestDto userRequestDto, String username);
+
+    UserResponseDto followUser(UserRequestDto userRequestDto, String username);
+
+    UserResponseDto unfollowUser(UserRequestDto userRequestDto, String username);
 }

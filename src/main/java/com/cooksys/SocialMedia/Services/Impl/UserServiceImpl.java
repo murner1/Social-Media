@@ -130,11 +130,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto deleteUser(CredentialsDto credentialsDto, String username) {
         Optional<User> userToDelete = userRepository.findByCredentialsUsername(username);
-        if (!userToDelete.isPresent() ||
-                userToDelete.get().isDeleted() ||
-                !userToDelete.get().getCredentials().getUsername().equals(credentialsDto.getUsername()) ||
-                !userToDelete.get().getCredentials().getPassword().equals(credentialsDto.getPassword())) {
+        if (!userToDelete.isPresent()
+//                userToDelete.get().isDeleted() ||
+                ) {
             throw new NotFoundException("User not found");
+        }
+        if(!userToDelete.get().getCredentials().getUsername().equals(credentialsDto.getUsername()) ||
+                !userToDelete.get().getCredentials().getPassword().equals(credentialsDto.getPassword())){
+            throw new NotFoundException("Username or password is incorrect");
         }
         User deletingUser = userToDelete.get();
         deletingUser.setDeleted(true);
@@ -160,7 +163,30 @@ public class UserServiceImpl implements UserService {
         User updateThisUser = userRepository.saveAndFlush(userToUpdate);
         return userMapper.entityToDto((updateThisUser));
     }
+    //@PostMapping"@{username}/follow"
+    @Override
+    public  UserResponseDto followUser(UserRequestDto userRequestDto, String username){
+        User userFollowers = userMapper.requestDtoToEntity(userRequestDto);
+        Optional<User> followingUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+        if(!followingUser.isPresent() ||
+                followingUser.get().isDeleted() ||
+                !followingUser.get().getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername())){
 
+            throw new NotFoundException("User not found");
+        }
+        return null;
+    }
+    //@PostMapping"@{username}/follow"
+    public  UserResponseDto unfollowUser(UserRequestDto userRequestDto, String username){
+        User userFollowers = userMapper.requestDtoToEntity(userRequestDto);
+        Optional<User> followingUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+        if(!followingUser.isPresent() ||
+                followingUser.get().isDeleted() ||
+                !followingUser.get().getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername())){
 
+            throw new NotFoundException("User not found");
+        }
+        return null;
+    }
 
 }
