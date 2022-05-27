@@ -37,6 +37,16 @@ public class TweetServiceImpl implements TweetService {
 
 	private HashtagRepository hashtagRepository;
 
+	private Tweet returnTweetFromId(Long id) {
+		Optional<Tweet> tweet = tweetRepository.findById(id);
+		if (tweet.isPresent()) {
+			return tweet.get();
+		} else {
+			throw new NotFoundException("This tweet does not exist");
+		}
+
+	}
+
 	@Override
 	public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
 		// need to check that the credentials match an active user, if not send an error
@@ -174,6 +184,13 @@ public class TweetServiceImpl implements TweetService {
 	@Override
 	public List<TweetResponseDto> getAllTweets() {
 		return tweetMapper.entitiesToDto(tweetRepository.findAllByDeleted(false));
-		
+
+	}
+
+	@Override
+	public TweetResponseDto deleteTweet(Long id) {
+		Tweet tweetToDelete = returnTweetFromId(id);
+		tweetToDelete.setDeleted(true);
+		return null;
 	}
 }

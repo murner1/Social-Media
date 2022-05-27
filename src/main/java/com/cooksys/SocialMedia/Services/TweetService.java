@@ -23,4 +23,8 @@ public interface TweetService {
 
 	List<TweetResponseDto> getAllTweets();
 
+	TweetResponseDto deleteTweet(Long id);
+	
+	
+
 }
