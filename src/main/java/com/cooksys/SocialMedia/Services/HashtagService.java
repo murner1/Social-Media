@@ -6,5 +6,8 @@ import java.util.List;
 
 public interface HashtagService {
 
-    List<HashtagDto> getTags(Long id);
+   List<HashtagDto> getTags(Long id);
+
+	 List<HashtagDto> getAllTags();
+
 }
