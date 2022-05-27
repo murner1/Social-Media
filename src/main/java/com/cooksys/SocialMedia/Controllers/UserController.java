@@ -3,7 +3,11 @@ package com.cooksys.SocialMedia.Controllers;
 import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+<<<<<<< Updated upstream
 import com.cooksys.SocialMedia.Entities.User;
+=======
+import com.cooksys.SocialMedia.Embeddable.Credentials;
+>>>>>>> Stashed changes
 import org.springframework.web.bind.annotation.*;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Entities.User;
@@ -35,6 +39,11 @@ public class UserController {
 	public UserResponseDto createUser(@RequestBody UserRequestDto userRequestDto){
 		return userService.createUser(userRequestDto);
 	}
+	@PatchMapping("/@{username}")
+	public UserResponseDto updateUser(@RequestBody UserRequestDto userRequestDto){
+		return userService.updateUser(userRequestDto);
+	}
+
 
 
 	@GetMapping("@{username}/feed")
@@ -56,6 +65,10 @@ public class UserController {
 	@GetMapping("@{username}/followers")
 	public List<UserResponseDto> getFollowers(@PathVariable String username){
 		return userService.getFollowers(username);
+	}
+	@DeleteMapping("/@{username}")
+	public UserResponseDto deleteUser(@RequestBody CredentialsDto credentialsDto, @PathVariable String username){
+		return userService.deleteUser(credentialsDto, username);
 	}
 
 
