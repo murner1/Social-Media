@@ -36,11 +36,20 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public List<TweetResponseDto> getFeed(String username) {
 		Optional<User> user = userRepository.findByCredentialsUsername(username);
+		List<User> following = user.get().getFollowing();
 		if (user.isPresent()) {
 			List<Tweet> tweets = user.get().getTweets();
 			for(Tweet tweet : tweets){
 				if(tweet.isDeleted()){
 					tweets.remove(tweet);
+				}
+			}
+			for(User users : following){
+				List<Tweet> usersTweets = users.getTweets();
+				for(Tweet tweet : usersTweets){
+					if(!tweet.isDeleted()){
+						tweets.add(tweet);
+					}
 				}
 			}
 			tweets.sort(Comparator.comparing(Tweet::getPosted));
@@ -65,6 +74,25 @@ public class UserServiceImpl implements UserService{
 		}
 		else{
 			throw new NotFoundException("this User does not exist");
+		}
+	}
+
+	@Override
+	public List<TweetResponseDto> getAuthoredTweets(String username) {
+		Optional<User> user = userRepository.findByCredentialsUsername(username);
+		if(user.isPresent()){
+			List<Tweet> authored = user.get().getTweets();
+			for(Tweet tweet : authored){
+				if(tweet.isDeleted()){
+					authored.remove(tweet);
+				}
+			}
+			authored.sort(Comparator.comparing(Tweet::getPosted));
+			Collections.reverse(authored);
+			return tweetMapper.entitiesToDto(authored);
+		}
+		else{
+			throw new NotFoundException("This User does not exist");
 		}
 	}
 }
