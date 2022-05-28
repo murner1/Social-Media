@@ -41,6 +41,12 @@ public class TweetController {
 	public TweetResponseDto postTweet(@RequestBody TweetRequestDto tweetRequestDto) {
 		return tweetService.postTweet(tweetRequestDto);
 	}
+	
+	//Repost tweet endpoint
+	@PostMapping("/{id}/repost")
+	public TweetResponseDto repostTweet(@RequestBody CredentialsDto credentialsDto, @PathVariable Long id) {
+		return tweetService.repostTweet(credentialsDto, id);
+	} 
 
 	@GetMapping
 	public List<TweetResponseDto> getAllTweets() {
@@ -82,5 +88,7 @@ public class TweetController {
 	public TweetResponseDto deleteTweet(@RequestBody CredentialsDto credentialsDto, @PathVariable Long id) {
 		return tweetService.deleteTweet(credentialsDto, id);
 	}
+	
+	
 
 }

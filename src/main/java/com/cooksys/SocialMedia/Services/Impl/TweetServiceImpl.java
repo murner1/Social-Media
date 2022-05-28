@@ -115,6 +115,12 @@ public class TweetServiceImpl implements TweetService {
 		// Save the tweet and and return it
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToSave));
 	}
+	
+	@Override
+	public TweetResponseDto repostTweet(CredentialsDto credentialsDto, Long id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	@Override
 	public List<UserResponseDto> getMentions(Long id) {
@@ -208,4 +214,6 @@ public class TweetServiceImpl implements TweetService {
 		
 		
 	}
+
+
 }
