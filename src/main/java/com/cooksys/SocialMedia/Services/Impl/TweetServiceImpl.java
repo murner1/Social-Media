@@ -88,7 +88,7 @@ public class TweetServiceImpl implements TweetService {
 		// could be nice to make these thier own methods
 		for (int i = 0; i < contentAsArray.length; i++) {
 			if (contentAsArray[i].contains("#")) {
-
+				//does this cause problems if the hashtag already exists?
 				Hashtag hashtag = new Hashtag();
 				hashtag.setLabel(contentAsArray[i]);
 				hashtag.getTweets().add(tweetToSave);
@@ -100,7 +100,7 @@ public class TweetServiceImpl implements TweetService {
 				Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
 				if (userMentioned.isPresent()) {
 					tweetToSave.getUsersMentioned().add(userMentioned.get());
-					userMentioned.get().getMentions().add(0, tweetToSave);
+					
 				}
 			}
 
@@ -200,6 +200,9 @@ public class TweetServiceImpl implements TweetService {
 	public TweetResponseDto deleteTweet(CredentialsDto credentialsDto, Long id) {
 		User user =validateCredentials(credentialsDto);
 		Tweet tweetToDelete = returnTweetFromId(id);
+		if (!tweetToDelete.getAuthor().equals(user)) {
+			throw new BadRequestException("Credentials do not match tweet Author");
+		}
 		tweetToDelete.setDeleted(true);
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToDelete));
 		
