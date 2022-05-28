@@ -9,7 +9,6 @@ import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.TweetRequestDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
-import com.cooksys.SocialMedia.Embeddable.Credentials;
 import com.cooksys.SocialMedia.Entities.Hashtag;
 import com.cooksys.SocialMedia.Entities.Tweet;
 import com.cooksys.SocialMedia.Entities.User;
@@ -48,18 +47,49 @@ public class TweetServiceImpl implements TweetService {
 	}
 
 	private User validateCredentials(CredentialsDto credentialsDto) {
-		if(credentialsDto.getPassword()== null || credentialsDto.getPassword()==null) {
+		if (credentialsDto.getPassword() == null || credentialsDto.getPassword() == null) {
 			throw new BadRequestException("Username and Password must be provided");
 		}
-		
-		Optional<User> user =userRepository.findByCredentialsUsername(credentialsDto.getUsername());
-		if(user.isEmpty()|| user.get().isDeleted()) {
+
+		Optional<User> user = userRepository.findByCredentialsUsername(credentialsDto.getUsername());
+		if (user.isEmpty() || user.get().isDeleted()) {
 			throw new NotFoundException("Cannot alter tweets because user cannot be found.");
 		}
-		if(!credentialsDto.getPassword().equals(user.get().getCredentials().getPassword())) {
+		if (!credentialsDto.getPassword().equals(user.get().getCredentials().getPassword())) {
 			throw new NotFoundException("Cannot alter tweets. Password is invalid");
 		}
 		return user.get();
+	}
+
+	private void checkForHashtagsAndMentions(Tweet tweet) {
+		String[] contentAsArray = tweet.getContent().split(" ", 0);
+
+		// could be nice to make these thier own methods
+		for (int i = 0; i < contentAsArray.length; i++) {
+			if (contentAsArray[i].indexOf("#") == 0) {
+				// does this cause problems if the hashtag already exists?
+				Hashtag hashtag = new Hashtag();
+				hashtag.setLabel(contentAsArray[i]);
+				hashtag.getTweets().add(tweet);
+				tweet.getHashtags().add(hashtag);
+				hashtagRepository.saveAndFlush(hashtag);
+			}
+
+			if (contentAsArray[i].indexOf("@") == 0) {
+				Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
+				if (userMentioned.isPresent()) {
+					tweet.getUsersMentioned().add(userMentioned.get());
+
+				}
+			}
+
+			List<User> usersMentioned = tweet.getUsersMentioned();
+			for (int j = 0; j < usersMentioned.size(); j++) {
+				usersMentioned.get(j).getMentions().add(0, tweet);
+				userRepository.saveAndFlush(usersMentioned.get(j));
+			}
+
+		}
 	}
 
 	@Override
@@ -88,7 +118,7 @@ public class TweetServiceImpl implements TweetService {
 		// could be nice to make these thier own methods
 		for (int i = 0; i < contentAsArray.length; i++) {
 			if (contentAsArray[i].contains("#")) {
-				//does this cause problems if the hashtag already exists?
+				// does this cause problems if the hashtag already exists?
 				Hashtag hashtag = new Hashtag();
 				hashtag.setLabel(contentAsArray[i]);
 				hashtag.getTweets().add(tweetToSave);
@@ -100,26 +130,34 @@ public class TweetServiceImpl implements TweetService {
 				Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
 				if (userMentioned.isPresent()) {
 					tweetToSave.getUsersMentioned().add(userMentioned.get());
-					
+
 				}
 			}
-
 			List<User> usersMentioned = tweetToSave.getUsersMentioned();
 			for (int j = 0; j < usersMentioned.size(); j++) {
 				usersMentioned.get(j).getMentions().add(0, tweetToSave);
 				userRepository.saveAndFlush(usersMentioned.get(j));
 			}
-
 		}
-
 		// Save the tweet and and return it
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToSave));
 	}
-	
+
 	@Override
 	public TweetResponseDto repostTweet(CredentialsDto credentialsDto, Long id) {
-		// TODO Auto-generated method stub
-		return null;
+
+		User tweetAuthor = validateCredentials(credentialsDto);
+		Optional<Tweet> optionalTweetToRepost = tweetRepository.findById(id);
+		if (optionalTweetToRepost.isEmpty() || optionalTweetToRepost.get().isDeleted()) {
+			throw new NotFoundException("Tweet with id " + id + " not found.");
+		}
+		Tweet tweetToRepost = optionalTweetToRepost.get();
+		Tweet tweetToCreate = new Tweet(tweetAuthor, tweetToRepost.getContent(), tweetToRepost,
+				tweetToRepost.getHashtags(), tweetToRepost.getUsersMentioned());
+		tweetToRepost.getReposts().add(tweetToCreate);
+		tweetRepository.saveAndFlush(tweetToRepost);
+		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToCreate));
+
 	}
 
 	@Override
@@ -204,16 +242,14 @@ public class TweetServiceImpl implements TweetService {
 
 	@Override
 	public TweetResponseDto deleteTweet(CredentialsDto credentialsDto, Long id) {
-		User user =validateCredentials(credentialsDto);
+		User user = validateCredentials(credentialsDto);
 		Tweet tweetToDelete = returnTweetFromId(id);
 		if (!tweetToDelete.getAuthor().equals(user)) {
 			throw new BadRequestException("Credentials do not match tweet Author");
 		}
 		tweetToDelete.setDeleted(true);
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToDelete));
-		
-		
-	}
 
+	}
 
 }

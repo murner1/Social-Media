@@ -14,15 +14,19 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class Tweet implements Deletable {
 
-    @Id
+
+
+	@Id
     @GeneratedValue
     private Long id;
 
@@ -60,5 +64,14 @@ public class Tweet implements Deletable {
     @ManyToMany
     @JoinTable
     private List<User> usersMentioned = new ArrayList<>();
-
+    
+    
+    public Tweet(User tweetAuthor, String content, Tweet repostOf, List<Hashtag> hashtags,
+			List<User> usersMentioned) {
+		this.author = tweetAuthor;
+		this.content = content;
+		this.repostOf = repostOf;
+		this.hashtags = hashtags;
+		this.usersMentioned = usersMentioned;
+	}
 }
