@@ -1,5 +1,6 @@
 package com.cooksys.SocialMedia.Controllers;
 
+import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
 import org.springframework.web.bind.annotation.*;
@@ -53,6 +54,24 @@ public class UserController {
 	@GetMapping("@{username}/followers")
 	public List<UserResponseDto> getFollowers(@PathVariable String username){
 		return userService.getFollowers(username);
+	}
+	@DeleteMapping("@{username}")
+	public UserResponseDto deleteUser(@RequestBody CredentialsDto credentialsDto, @PathVariable String username){
+		return  userService.deleteUser(credentialsDto, username);
+	}
+	@PatchMapping("@{username}")
+	public UserResponseDto updateUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username){
+		return userService.updateUser(userRequestDto, username);
+	}
+	@PostMapping("@{username}/follow")
+	public UserResponseDto followUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username){
+		return userService.followUser(userRequestDto, username);
+	}
+
+	@PostMapping("@{username}/unfollow")
+	public UserResponseDto unfollowUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username) {
+		return userService.unfollowUser(userRequestDto, username);
+
 	}
 
 

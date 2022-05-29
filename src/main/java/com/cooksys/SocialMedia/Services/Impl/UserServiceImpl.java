@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
@@ -125,6 +126,67 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponseDto> getFollowers(String username) {
         return userMapper.entititesToDto(filterDeleted(findUser(username).getFollowers()));
+    }
+    @Override
+    public UserResponseDto deleteUser(CredentialsDto credentialsDto, String username) {
+        Optional<User> userToDelete = userRepository.findByCredentialsUsername(username);
+        if (!userToDelete.isPresent()
+//                userToDelete.get().isDeleted() ||
+                ) {
+            throw new NotFoundException("User not found");
+        }
+        if(!userToDelete.get().getCredentials().getUsername().equals(credentialsDto.getUsername()) ||
+                !userToDelete.get().getCredentials().getPassword().equals(credentialsDto.getPassword())){
+            throw new NotFoundException("Username or password is incorrect");
+        }
+        User deletingUser = userToDelete.get();
+        deletingUser.setDeleted(true);
+
+        for (Tweet tweet : deletingUser.getTweets()) {
+            tweet.setDeleted(true);
+        }
+        userRepository.saveAndFlush(deletingUser);
+        return userMapper.entityToDto(userToDelete.get());
+    }
+
+
+    @Override
+    public UserResponseDto updateUser(UserRequestDto userRequestDto, String username) {
+        User userToUpdate = userMapper.requestDtoToEntity(userRequestDto);
+        Optional<User> updatingUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+        if (!updatingUser.isPresent() ||
+                updatingUser.get().isDeleted() ||
+                !updatingUser.get().getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername()) ||
+                !updatingUser.get().getCredentials().getPassword().equals(userToUpdate.getCredentials().getPassword())) {
+            throw new NotFoundException("User not found.");
+        }
+        User updateThisUser = userRepository.saveAndFlush(userToUpdate);
+        return userMapper.entityToDto((updateThisUser));
+    }
+    //@PostMapping"@{username}/follow"
+    @Override
+    public  UserResponseDto followUser(UserRequestDto userRequestDto, String username){
+        User userFollowers = userMapper.requestDtoToEntity(userRequestDto);
+        Optional<User> followingUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+        if(!followingUser.isPresent() ||
+                followingUser.get().isDeleted() ||
+                !followingUser.get().getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername())){
+
+            throw new NotFoundException("User not found");
+        }
+        return null;
+    }
+    //@PostMapping"@{username}/follow"
+    public  UserResponseDto unfollowUser(UserRequestDto userRequestDto, String username){
+        User userFollowers = userMapper.requestDtoToEntity(userRequestDto);
+        Optional<User> followingUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
+        if(!followingUser.isPresent() ||
+                followingUser.get().isDeleted() ||
+                !followingUser.get().getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername())){
+
+            throw new NotFoundException("User not found");
+        }
+        return null;
     }
 
 }
