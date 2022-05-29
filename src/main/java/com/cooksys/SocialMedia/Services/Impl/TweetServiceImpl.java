@@ -160,11 +160,16 @@ public class TweetServiceImpl implements TweetService {
 	}
 	
 	
-	//////Finish this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 	@Override
 	public Void likeTweet(CredentialsDto credentialsDto, Long id) {
 		User user = validateCredentials(credentialsDto);
 		Tweet tweetToLike = checkTweetExists(id);
+		tweetToLike.addUserLike(user);
+		user.addLike(tweetToLike);
+		tweetRepository.saveAndFlush(tweetToLike);
+		userRepository.saveAndFlush(user);
+		
 		
 		
 		
