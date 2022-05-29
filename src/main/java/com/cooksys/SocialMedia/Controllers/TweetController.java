@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,6 +49,13 @@ public class TweetController {
 		return tweetService.repostTweet(credentialsDto, id);
 	} 
 
+	//Reply to a tweet
+	@PostMapping("/{id}/reply")
+	public TweetResponseDto replyToTweet(@RequestBody TweetRequestDto tweetRequestDto, @PathVariable Long id) {
+		return tweetService.replyToTweet(tweetRequestDto,id);
+	}
+	
+	
 	@GetMapping
 	public List<TweetResponseDto> getAllTweets() {
 		return tweetService.getAllTweets();

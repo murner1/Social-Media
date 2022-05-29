@@ -24,54 +24,56 @@ import lombok.NoArgsConstructor;
 @Data
 public class Tweet implements Deletable {
 
-
-
 	@Id
-    @GeneratedValue
-    private Long id;
+	@GeneratedValue
+	private Long id;
 
-    @ManyToOne
-    private User author;
+	@ManyToOne
+	private User author;
 
-    private Timestamp posted = Timestamp.valueOf(LocalDateTime.now());
+	private Timestamp posted = Timestamp.valueOf(LocalDateTime.now());
 
-    private boolean deleted = false;
+	private boolean deleted = false;
 
-    private String content;
+	private String content;
 
-    @ManyToOne
-    @JoinColumn
-    private Tweet inReplyTo;
+	@ManyToOne
+	@JoinColumn
+	private Tweet inReplyTo;
 
-    @ManyToOne
-    @JoinColumn
-    private Tweet repostOf;
+	@ManyToOne
+	@JoinColumn
+	private Tweet repostOf;
 
-    @OneToMany(mappedBy = "inReplyTo")
-    private List<Tweet> replies = new ArrayList<>();
+	@OneToMany(mappedBy = "inReplyTo")
+	private List<Tweet> replies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "repostOf")
-    private List<Tweet> reposts = new ArrayList<>();
+	@OneToMany(mappedBy = "repostOf")
+	private List<Tweet> reposts = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable
-    private List<Hashtag> hashtags = new ArrayList<>();
+	@ManyToMany
+	@JoinTable
+	private List<Hashtag> hashtags = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable
-    private List<User> userLikes = new ArrayList<>();
+	@ManyToMany
+	@JoinTable
+	private List<User> userLikes = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable
-    private List<User> usersMentioned = new ArrayList<>();
-    
-    
-    public Tweet(User tweetAuthor, String content, Tweet repostOf, List<Hashtag> hashtags,
-			List<User> usersMentioned) {
+	@ManyToMany
+	@JoinTable
+	private List<User> usersMentioned = new ArrayList<>();
+
+
+	public Tweet(User tweetAuthor, String content, List<Hashtag> hashtags, List<User> usersMentioned) {
 		this.author = tweetAuthor;
 		this.content = content;
-		this.repostOf = repostOf;
 		this.hashtags = hashtags;
 		this.usersMentioned = usersMentioned;
+	}
+	
+	public Tweet(User tweetAuthor, String content) {
+		this.author = tweetAuthor;
+		this.content = content;
+		
 	}
 }

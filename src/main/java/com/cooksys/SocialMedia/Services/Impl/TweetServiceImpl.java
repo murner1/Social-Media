@@ -1,5 +1,6 @@
 package com.cooksys.SocialMedia.Services.Impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +65,6 @@ public class TweetServiceImpl implements TweetService {
 	private void checkForHashtagsAndMentions(Tweet tweet) {
 		String[] contentAsArray = tweet.getContent().split(" ", 0);
 
-		// could be nice to make these thier own methods
 		for (int i = 0; i < contentAsArray.length; i++) {
 			if (contentAsArray[i].indexOf("#") == 0) {
 				// does this cause problems if the hashtag already exists?
@@ -152,12 +152,41 @@ public class TweetServiceImpl implements TweetService {
 			throw new NotFoundException("Tweet with id " + id + " not found.");
 		}
 		Tweet tweetToRepost = optionalTweetToRepost.get();
-		Tweet tweetToCreate = new Tweet(tweetAuthor, tweetToRepost.getContent(), tweetToRepost,
-				tweetToRepost.getHashtags(), tweetToRepost.getUsersMentioned());
+		Tweet tweetToCreate = new Tweet(tweetAuthor, tweetToRepost.getContent(), tweetToRepost.getHashtags(),
+				tweetToRepost.getUsersMentioned());
 		tweetToRepost.getReposts().add(tweetToCreate);
+		tweetToCreate.setRepostOf(tweetToRepost);
 		tweetRepository.saveAndFlush(tweetToRepost);
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToCreate));
 
+	}
+
+	@Override
+	public TweetResponseDto replyToTweet(TweetRequestDto tweetRequestDto, Long id) {
+		// Check that the tweet has content
+		if (tweetRequestDto.getContent() == null) {
+			throw new BadRequestException("Content is required for posting a tweet");
+		}
+		// Check that the credentials match an active user
+		User replyAuthor = validateCredentials(tweetRequestDto.getCredentials());
+		// find the tweet and make sure it is not deleted. This woudld be good to create
+		// a method for
+		Optional<Tweet> optionalTweetToReplyTo = tweetRepository.findById(id);
+		if (optionalTweetToReplyTo.isEmpty() || optionalTweetToReplyTo.get().isDeleted()) {
+			throw new NotFoundException("Tweet with id " + id + " not found.");
+		}
+		Tweet tweetToReplyTo = optionalTweetToReplyTo.get();
+		
+		 Tweet tweetToCreate = new Tweet(replyAuthor, tweetRequestDto.getContent());
+		 
+		 tweetToCreate.setInReplyTo(tweetToReplyTo);
+		 tweetToReplyTo.getReplies().add(tweetToCreate);
+		 //Add hashtags and user mentions to tweetToCreate
+		 checkForHashtagsAndMentions(tweetToCreate);
+		 
+		 tweetRepository.saveAndFlush(tweetToReplyTo);
+		 
+		 return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToCreate));
 	}
 
 	@Override

@@ -28,6 +28,7 @@ public interface TweetService {
 	
 	TweetResponseDto repostTweet(CredentialsDto credentialsDto, Long id);
 	
+	TweetResponseDto replyToTweet(TweetRequestDto tweetRequestDto,Long id);
 	
 
 }
