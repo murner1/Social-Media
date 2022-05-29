@@ -70,29 +70,29 @@ public class TweetServiceImpl implements TweetService {
 				// does this cause problems if the hashtag already exists?
 				Hashtag hashtag = new Hashtag();
 				hashtag.setLabel(contentAsArray[i]);
-				hashtag.getTweets().add(tweet);
-				tweet.getHashtags().add(hashtag);
+				hashtag.addTweet(tweet);
+				tweet.addHashtag(hashtag);
 				hashtagRepository.saveAndFlush(hashtag);
 			}
 
 			if (contentAsArray[i].indexOf("@") == 0) {
 				Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
 				if (userMentioned.isPresent()) {
-					tweet.getUsersMentioned().add(userMentioned.get());
+					tweet.addUserMention(userMentioned.get());
 
 				}
 			}
 
 			List<User> usersMentioned = tweet.getUsersMentioned();
 			for (int j = 0; j < usersMentioned.size(); j++) {
-				usersMentioned.get(j).getMentions().add(0, tweet);
+				usersMentioned.get(j).addMention(tweet);
 				userRepository.saveAndFlush(usersMentioned.get(j));
 			}
 
 		}
 	}
 	
-	private tweet checkTweetExists(Long id) {
+	private Tweet checkTweetExists(Long id) {
 		
 		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
 		if (optionalTweet.isEmpty() || optionalTweet.get().isDeleted()) {
@@ -103,10 +103,6 @@ public class TweetServiceImpl implements TweetService {
 
 	@Override
 	public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
-		// need to check that the credentials match an active user, if not send an error
-		// For now we don't need to check that it does not have inReplyTo or repostOf
-		// because tweetRequestDto only has content and credentials
-
 		// Check that the tweet has content
 		if (tweetRequestDto.getContent() == null) {
 			throw new BadRequestException("Content is required for posting a tweet");
@@ -118,37 +114,8 @@ public class TweetServiceImpl implements TweetService {
 		Tweet tweetToSave = tweetMapper.requestDtoToEntity(tweetRequestDto);
 
 		tweetToSave.setAuthor(tweetAuthor);
+		checkForHashtagsAndMentions(tweetToSave);
 
-		// need to scan through the tweeet for @{username} and #{hastag} and add these
-		// this could give issues if someone dosn't put a space before their hashtag or
-		// mention
-		String[] contentAsArray = tweetToSave.getContent().split(" ", 0);
-
-		// could be nice to make these thier own methods
-		for (int i = 0; i < contentAsArray.length; i++) {
-			if (contentAsArray[i].contains("#")) {
-				// does this cause problems if the hashtag already exists?
-				Hashtag hashtag = new Hashtag();
-				hashtag.setLabel(contentAsArray[i]);
-				hashtag.getTweets().add(tweetToSave);
-				tweetToSave.getHashtags().add(hashtag);
-				hashtagRepository.saveAndFlush(hashtag);
-			}
-
-			if (contentAsArray[i].contains("@")) {
-				Optional<User> userMentioned = userRepository.findByCredentialsUsername(contentAsArray[i].substring(1));
-				if (userMentioned.isPresent()) {
-					tweetToSave.getUsersMentioned().add(userMentioned.get());
-
-				}
-			}
-			List<User> usersMentioned = tweetToSave.getUsersMentioned();
-			for (int j = 0; j < usersMentioned.size(); j++) {
-				usersMentioned.get(j).getMentions().add(0, tweetToSave);
-				userRepository.saveAndFlush(usersMentioned.get(j));
-			}
-		}
-		// Save the tweet and and return it
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToSave));
 	}
 
@@ -156,18 +123,14 @@ public class TweetServiceImpl implements TweetService {
 	public TweetResponseDto repostTweet(CredentialsDto credentialsDto, Long id) {
 
 		User tweetAuthor = validateCredentials(credentialsDto);
+	
+		Tweet tweetToRepost = checkTweetExists(id);
 		
-		/////////////////////////////
-		Optional<Tweet> optionalTweetToRepost = tweetRepository.findById(id);
-		if (optionalTweetToRepost.isEmpty() || optionalTweetToRepost.get().isDeleted()) {
-			throw new NotFoundException("Tweet with id " + id + " not found.");
-		}
-		Tweet tweetToRepost = optionalTweetToRepost.get();
-		////////////////////////////
 		Tweet tweetToCreate = new Tweet(tweetAuthor, tweetToRepost.getContent(), tweetToRepost.getHashtags(),
 				tweetToRepost.getUsersMentioned());
-		tweetToRepost.getReposts().add(tweetToCreate);
+		tweetToRepost.addRepost(tweetToCreate);
 		tweetToCreate.setRepostOf(tweetToRepost);
+		
 		tweetRepository.saveAndFlush(tweetToRepost);
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToCreate));
 
@@ -181,13 +144,8 @@ public class TweetServiceImpl implements TweetService {
 		}
 		// Check that the credentials match an active user
 		User replyAuthor = validateCredentials(tweetRequestDto.getCredentials());
-		// find the tweet and make sure it is not deleted. This woudld be good to create
-		// a method for
-		Optional<Tweet> optionalTweetToReplyTo = tweetRepository.findById(id);
-		if (optionalTweetToReplyTo.isEmpty() || optionalTweetToReplyTo.get().isDeleted()) {
-			throw new NotFoundException("Tweet with id " + id + " not found.");
-		}
-		Tweet tweetToReplyTo = optionalTweetToReplyTo.get();
+
+		Tweet tweetToReplyTo = checkTweetExists(id);
 		
 		 Tweet tweetToCreate = new Tweet(replyAuthor, tweetRequestDto.getContent());
 		 
@@ -201,9 +159,15 @@ public class TweetServiceImpl implements TweetService {
 		 return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToCreate));
 	}
 	
+	
+	//////Finish this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	@Override
 	public Void likeTweet(CredentialsDto credentialsDto, Long id) {
 		User user = validateCredentials(credentialsDto);
+		Tweet tweetToLike = checkTweetExists(id);
+		
+		
+		
 		
 		return null;
 	}

@@ -50,5 +50,9 @@ public class User implements Deletable {
 
     @ManyToMany(mappedBy = "usersMentioned")
     private List<Tweet> mentions;
+    
+    public void addMention(Tweet tweet) {
+    	mentions.add(tweet);
+    }
 
 }

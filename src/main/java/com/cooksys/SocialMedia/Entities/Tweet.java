@@ -62,7 +62,26 @@ public class Tweet implements Deletable {
 	@ManyToMany
 	@JoinTable
 	private List<User> usersMentioned = new ArrayList<>();
-
+	
+	public void addReply(Tweet tweet) {
+		replies.add(tweet);
+	}
+	
+	public void addRepost(Tweet tweet) {
+		reposts.add(tweet);
+	}
+	
+	public void addHashtag(Hashtag hashtag) {
+		hashtags.add(hashtag);
+	}
+	
+	public void addUserLike(User user) {
+		userLikes.add(user);
+	}
+	
+	public void addUserMention(User user) {
+		usersMentioned.add(user);
+	}
 
 	public Tweet(User tweetAuthor, String content, List<Hashtag> hashtags, List<User> usersMentioned) {
 		this.author = tweetAuthor;
