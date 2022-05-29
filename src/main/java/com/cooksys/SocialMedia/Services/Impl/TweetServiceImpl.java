@@ -91,6 +91,15 @@ public class TweetServiceImpl implements TweetService {
 
 		}
 	}
+	
+	private tweet checkTweetExists(Long id) {
+		
+		Optional<Tweet> optionalTweet = tweetRepository.findById(id);
+		if (optionalTweet.isEmpty() || optionalTweet.get().isDeleted()) {
+			throw new NotFoundException("Tweet with id " + id + " not found.");
+		}
+		return optionalTweet.get();
+	}
 
 	@Override
 	public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
@@ -147,11 +156,14 @@ public class TweetServiceImpl implements TweetService {
 	public TweetResponseDto repostTweet(CredentialsDto credentialsDto, Long id) {
 
 		User tweetAuthor = validateCredentials(credentialsDto);
+		
+		/////////////////////////////
 		Optional<Tweet> optionalTweetToRepost = tweetRepository.findById(id);
 		if (optionalTweetToRepost.isEmpty() || optionalTweetToRepost.get().isDeleted()) {
 			throw new NotFoundException("Tweet with id " + id + " not found.");
 		}
 		Tweet tweetToRepost = optionalTweetToRepost.get();
+		////////////////////////////
 		Tweet tweetToCreate = new Tweet(tweetAuthor, tweetToRepost.getContent(), tweetToRepost.getHashtags(),
 				tweetToRepost.getUsersMentioned());
 		tweetToRepost.getReposts().add(tweetToCreate);
@@ -187,6 +199,13 @@ public class TweetServiceImpl implements TweetService {
 		 tweetRepository.saveAndFlush(tweetToReplyTo);
 		 
 		 return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToCreate));
+	}
+	
+	@Override
+	public Void likeTweet(CredentialsDto credentialsDto, Long id) {
+		User user = validateCredentials(credentialsDto);
+		
+		return null;
 	}
 
 	@Override
@@ -280,5 +299,7 @@ public class TweetServiceImpl implements TweetService {
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToDelete));
 
 	}
+
+
 
 }

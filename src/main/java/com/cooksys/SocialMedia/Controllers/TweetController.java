@@ -54,7 +54,11 @@ public class TweetController {
 	public TweetResponseDto replyToTweet(@RequestBody TweetRequestDto tweetRequestDto, @PathVariable Long id) {
 		return tweetService.replyToTweet(tweetRequestDto,id);
 	}
-	
+	//like a tweet
+	@PostMapping("/{id}/like")
+	public void likeTweet(@RequestBody CredentialsDto credentialsDto, @PathVariable Long id) {
+		tweetService.likeTweet(credentialsDto,id);
+	}
 	
 	@GetMapping
 	public List<TweetResponseDto> getAllTweets() {
