@@ -8,6 +8,8 @@ import com.cooksys.SocialMedia.Entities.User;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.PathVariable;
+
 public interface TweetService {
   
     TweetResponseDto postTweet(TweetRequestDto tweetRequestDto);
@@ -31,4 +33,6 @@ public interface TweetService {
 	TweetResponseDto replyToTweet(TweetRequestDto tweetRequestDto,Long id);
 	
 	Void likeTweet(CredentialsDto credentialsDto,Long id);
+	
+	List<TweetResponseDto> getTweetsWithTag(String label);
 }

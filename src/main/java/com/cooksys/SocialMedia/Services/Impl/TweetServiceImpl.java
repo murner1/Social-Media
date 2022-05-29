@@ -10,6 +10,7 @@ import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.TweetRequestDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+import com.cooksys.SocialMedia.Entities.Deletable;
 import com.cooksys.SocialMedia.Entities.Hashtag;
 import com.cooksys.SocialMedia.Entities.Tweet;
 import com.cooksys.SocialMedia.Entities.User;
@@ -68,8 +69,15 @@ public class TweetServiceImpl implements TweetService {
 		for (int i = 0; i < contentAsArray.length; i++) {
 			if (contentAsArray[i].indexOf("#") == 0) {
 				// does this cause problems if the hashtag already exists?
-				Hashtag hashtag = new Hashtag();
-				hashtag.setLabel(contentAsArray[i]);
+				Hashtag hashtag;
+				Optional<Hashtag> optionalHashtag = hashtagRepository.findByLabel(contentAsArray[i]);
+				if(optionalHashtag.isPresent()) {
+					hashtag = optionalHashtag.get();
+				} else{
+					hashtag = new Hashtag();
+					hashtag.setLabel(contentAsArray[i]);
+				}
+				
 				hashtag.addTweet(tweet);
 				tweet.addHashtag(hashtag);
 				hashtagRepository.saveAndFlush(hashtag);
@@ -100,6 +108,16 @@ public class TweetServiceImpl implements TweetService {
 		}
 		return optionalTweet.get();
 	}
+	
+    private <T extends Deletable> List<T> filterDeleted(List<T> toFilter) {
+        List<T> filtered = new ArrayList<>();
+        for (T item : toFilter) {
+            if (!item.isDeleted()) {
+                filtered.add(item);
+            }
+        }
+        return filtered;
+    }
 
 	@Override
 	public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
@@ -169,11 +187,6 @@ public class TweetServiceImpl implements TweetService {
 		user.addLike(tweetToLike);
 		tweetRepository.saveAndFlush(tweetToLike);
 		userRepository.saveAndFlush(user);
-		
-		
-		
-		
-		
 		return null;
 	}
 
@@ -267,6 +280,16 @@ public class TweetServiceImpl implements TweetService {
 		tweetToDelete.setDeleted(true);
 		return tweetMapper.entityToResponseDto(tweetRepository.saveAndFlush(tweetToDelete));
 
+	}
+
+	@Override
+	public List<TweetResponseDto> getTweetsWithTag(String label) {
+		Optional<Hashtag> optionalhashtag = hashtagRepository.findByLabel("#"+label);
+		if(optionalhashtag.isEmpty()) {
+			throw new NotFoundException("Hashtag does not exist");
+		}
+		List<Tweet> tweetsWithHashtag = filterDeleted(optionalhashtag.get().getTweets());
+		return tweetMapper.entitiesToDto(tweetsWithHashtag);
 	}
 
 
