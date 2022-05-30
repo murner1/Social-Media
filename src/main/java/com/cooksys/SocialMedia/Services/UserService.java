@@ -6,7 +6,6 @@ import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
-import com.cooksys.SocialMedia.Entities.User;
 
 import java.util.List;
 
@@ -33,7 +32,7 @@ public interface UserService {
 
     UserResponseDto updateUser(UserRequestDto userRequestDto, String username);
 
-    UserResponseDto followUser(UserRequestDto userRequestDto, String username);
+    void followUser(CredentialsDto credentialsDto, String username);
 
-    UserResponseDto unfollowUser(UserRequestDto userRequestDto, String username);
+    void unfollowUser(CredentialsDto credentialsDto, String username);
 }

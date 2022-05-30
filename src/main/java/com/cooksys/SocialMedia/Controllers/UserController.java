@@ -3,6 +3,7 @@ package com.cooksys.SocialMedia.Controllers;
 import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+import com.cooksys.SocialMedia.Embeddable.Credentials;
 import org.springframework.web.bind.annotation.*;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Entities.User;
@@ -64,13 +65,13 @@ public class UserController {
 		return userService.updateUser(userRequestDto, username);
 	}
 	@PostMapping("@{username}/follow")
-	public UserResponseDto followUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username){
-		return userService.followUser(userRequestDto, username);
+	public void followUser(@RequestBody CredentialsDto credentialsDto, @PathVariable String username){
+		userService.followUser(credentialsDto, username);
 	}
 
 	@PostMapping("@{username}/unfollow")
-	public UserResponseDto unfollowUser(@RequestBody UserRequestDto userRequestDto, @PathVariable String username) {
-		return userService.unfollowUser(userRequestDto, username);
+	public void unfollowUser(@RequestBody CredentialsDto credentialsDto, @PathVariable String username) {
+		userService.unfollowUser(credentialsDto, username);
 
 	}
 

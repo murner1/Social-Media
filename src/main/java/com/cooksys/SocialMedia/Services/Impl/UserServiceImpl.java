@@ -10,11 +10,13 @@ import com.cooksys.SocialMedia.Dtos.CredentialsDto;
 import com.cooksys.SocialMedia.Dtos.TweetResponseDto;
 import com.cooksys.SocialMedia.Dtos.UserRequestDto;
 import com.cooksys.SocialMedia.Dtos.UserResponseDto;
+import com.cooksys.SocialMedia.Embeddable.Credentials;
 import com.cooksys.SocialMedia.Entities.Deletable;
 import com.cooksys.SocialMedia.Entities.Tweet;
 import com.cooksys.SocialMedia.Entities.User;
 import com.cooksys.SocialMedia.Exceptions.BadRequestException;
 import com.cooksys.SocialMedia.Exceptions.NotFoundException;
+import com.cooksys.SocialMedia.Mappers.CredentialsMapper;
 import com.cooksys.SocialMedia.Mappers.TweetMapper;
 import com.cooksys.SocialMedia.Mappers.UserMapper;
 import com.cooksys.SocialMedia.Repositories.UserRepository;
@@ -32,6 +34,8 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     private TweetMapper tweetMapper;
+
+    private CredentialsMapper credentialsMapper;
 
     private <T extends Deletable> List<T> filterDeleted(List<T> toFilter) {
         List<T> filtered = new ArrayList<>();
@@ -165,28 +169,56 @@ public class UserServiceImpl implements UserService {
     }
     //@PostMapping"@{username}/follow"
     @Override
-    public  UserResponseDto followUser(UserRequestDto userRequestDto, String username){
-        User userFollowers = userMapper.requestDtoToEntity(userRequestDto);
-        Optional<User> followingUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
-        if(!followingUser.isPresent() ||
-                followingUser.get().isDeleted() ||
-                !followingUser.get().getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername())){
-
-            throw new NotFoundException("User not found");
+    public void followUser(CredentialsDto credentialsDto, String username){
+        Credentials userCredentials = credentialsMapper.dtoToEntity(credentialsDto);
+        Optional<User> userFollowing = userRepository.findByCredentialsUsername(credentialsDto.getUsername());
+        Optional<User> userFollowed = userRepository.findByCredentialsUsername(username);
+        if(!userFollowing.isPresent() ||
+                userFollowing.get().isDeleted() ||
+                !userFollowing.get().getCredentials().getUsername().equals(userCredentials.getUsername()) ||
+                !userFollowing.get().getCredentials().getPassword().equals(userCredentials.getUsername())) {
+            throw new NotFoundException("User not found.");
         }
-        return null;
+        if(!userFollowed.isPresent() || userFollowed.get().isDeleted()){
+            throw new NotFoundException("Cannot follow.");
+        }
+        User realFollowing = userFollowing.get();
+        User realFollowed = userFollowed.get();
+
+        if(realFollowed.getFollowers().contains(realFollowing)){
+            throw new BadRequestException("Already following user");
+        }
+        realFollowing.getFollowing().add(realFollowed);
+        realFollowed.getFollowers().add(realFollowing);
+        userRepository.saveAndFlush(realFollowing);
+        userRepository.saveAndFlush(realFollowed);
+
     }
-    //@PostMapping"@{username}/follow"
-    public  UserResponseDto unfollowUser(UserRequestDto userRequestDto, String username){
-        User userFollowers = userMapper.requestDtoToEntity(userRequestDto);
-        Optional<User> followingUser = userRepository.findByCredentialsUsername(userRequestDto.getCredentials().getUsername());
-        if(!followingUser.isPresent() ||
-                followingUser.get().isDeleted() ||
-                !followingUser.get().getCredentials().getUsername().equals(userRequestDto.getCredentials().getUsername())){
-
-            throw new NotFoundException("User not found");
+    //@PostMapping"@{username}/unfollow"
+    public void unfollowUser(CredentialsDto credentialsDto, String username){
+        Credentials userCredentials = credentialsMapper.dtoToEntity(credentialsDto);
+        Optional<User> userFollowing = userRepository.findByCredentialsUsername(credentialsDto.getUsername());
+        Optional<User> userFollowed = userRepository.findByCredentialsUsername(username);
+        if(!userFollowing.isPresent() ||
+                userFollowing.get().isDeleted() ||
+                !userFollowing.get().getCredentials().getUsername().equals(userCredentials.getUsername()) ||
+                !userFollowing.get().getCredentials().getPassword().equals(userCredentials.getUsername())) {
+            throw new NotFoundException("User not found.");
         }
-        return null;
+        if(!userFollowed.isPresent() || userFollowed.get().isDeleted()){
+            throw new NotFoundException("Cannot follow.");
+        }
+        User realFollowing = userFollowing.get();
+        User realFollowed = userFollowed.get();
+
+        if(!realFollowed.getFollowers().contains(realFollowing)){
+            throw new BadRequestException("Not following user");
+        }
+        realFollowing.getFollowing().remove(realFollowed);
+        realFollowed.getFollowers().remove(realFollowing);
+        userRepository.saveAndFlush(realFollowing);
+        userRepository.saveAndFlush(realFollowed);
+
     }
 
 }
