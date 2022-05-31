@@ -121,4 +121,13 @@ public class TweetServiceImpl implements TweetService {
             throw new NotFoundException("This tweet does not exist");
         }
     }
+
+    @Override
+    public List<TweetResponseDto> getContext(Long id) {
+        Optional<Tweet> tweet = tweetRepository.findById(id);
+        if(!tweet.isPresent()){
+            throw new NotFoundException("This tweet does not exist");
+
+        }
+    }
 }

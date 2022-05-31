@@ -72,6 +72,9 @@ public class TweetController {
 	public List<HashtagDto> getTags(@PathVariable Long id){
 		return hashtagService.getTags(id);
 	}
+
+	@GetMapping("{id}/context")
+	public List<TweetResponseDto> getContext(@PathVariable Long id){return tweetService.getContext(id);}
   
 
 }
