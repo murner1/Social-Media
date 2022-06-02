@@ -95,6 +95,11 @@ public class TweetController {
 	public List<HashtagDto> getTags(@PathVariable Long id) {
 		return hashtagService.getTags(id);
 	}
+
+	@GetMapping("{id}/context")
+	public List<TweetResponseDto> getContext(@PathVariable Long id){return tweetService.getContext(id);}
+  
+
 	
 	@GetMapping("tags/{label}")
 	public List<TweetResponseDto> getTags(@PathVariable String label){
@@ -105,7 +110,6 @@ public class TweetController {
 	public TweetResponseDto deleteTweet(@RequestBody CredentialsDto credentialsDto, @PathVariable Long id) {
 		return tweetService.deleteTweet(credentialsDto, id);
 	}
-	
 	
 
 }

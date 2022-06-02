@@ -119,6 +119,25 @@ public class TweetServiceImpl implements TweetService {
         return filtered;
     }
 
+    @Override
+    public TweetResponseDto getTweetById(Long id) {
+        Optional<Tweet> tweet = tweetRepository.findById(id);
+        if (tweet.isPresent()) {
+            return tweetMapper.entityToResponseDto(tweet.get());
+        } else {
+            throw new NotFoundException("This tweet does not exist");
+        }
+    }
+
+    @Override
+    public List<TweetResponseDto> getContext(Long id) {
+        Optional<Tweet> tweet = tweetRepository.findById(id);
+        if(!tweet.isPresent()){
+            throw new NotFoundException("This tweet does not exist");
+
+        }
+    }
+  
 	@Override
 	public TweetResponseDto postTweet(TweetRequestDto tweetRequestDto) {
 		// Check that the tweet has content
@@ -291,7 +310,5 @@ public class TweetServiceImpl implements TweetService {
 		List<Tweet> tweetsWithHashtag = filterDeleted(optionalhashtag.get().getTweets());
 		return tweetMapper.entitiesToDto(tweetsWithHashtag);
 	}
-
-
 
 }
